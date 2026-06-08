@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "PowerShell(cd \"C:\\\\Users\\\\itpark\\\\Desktop\\\\DrivePass+ PWA_1\"; if \\(Test-Path \"node_modules\"\\) { \"EXISTS: $\\($\\(Get-ChildItem node_modules\\).Count\\) packages\" } else { \"MISSING\" })",
+      "Bash(npx cap *)",
+      "Bash(npm run *)",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\(\"C:\\\\Users\\\\itpark\\\\Desktop\\\\DrivePass+ PWA_1\\\\src\\\\assets\\\\d2a1e1755e3da144f861793ea86b3d5e07fd81b8.png\"\\); Write-Output \"$\\($img.Width\\)x$\\($img.Height\\)\"; $img.Dispose\\(\\))"
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  DrivePass+ — дополнительные ключи для Info.plist (iOS)
+  Добавить вручную в Xcode после `npx cap add ios`:
+  App Target → Info → Custom iOS Target Properties
+
+  ИЛИ вставить в ios/App/App/Info.plist внутрь <dict>
+-->
+<additions>
+
+  <!-- ── Камера (QR-сканер партнёра) ── -->
+  <key>NSCameraUsageDescription</key>
+  <string>DrivePass+ использует камеру для сканирования QR-кодов клиентов на автомойке</string>
+
+  <!-- ── Геолокация (поиск ближайших моек) ── -->
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>DrivePass+ определяет ваше местоположение, чтобы показать ближайшие партнёрские автомойки</string>
+
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>DrivePass+ использует геолокацию для геозащиты QR-кода — код активируется только у партнёрской мойки</string>
+
+  <!-- ── Push-уведомления ── -->
+  <key>UIBackgroundModes</key>
+  <array>
+    <string>remote-notification</string>
+    <string>fetch</string>
+  </array>
+
+  <!-- ── Внешний вид (нативный статус-бар) ── -->
+  <key>UIStatusBarStyle</key>
+  <string>UIStatusBarStyleLightContent</string>
+
+  <key>UIViewControllerBasedStatusBarAppearance</key>
+  <true/>
+
+  <!-- ── Safe area для notch/Dynamic Island ── -->
+  <key>UIRequiresFullScreen</key>
+  <false/>
+
+  <!-- ── Запрет масштабирования (нативное ощущение) ── -->
+  <key>UIScrollViewContentInsetAdjustmentBehavior</key>
+  <string>never</string>
+
+  <!-- ── Только портретная ориентация ── -->
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+  </array>
+
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+
+  <!-- ── App Transport Security (HTTPS к Supabase) ── -->
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <false/>
+    <key>NSExceptionDomains</key>
+    <dict>
+      <key>fipbpyjoydyqfvcfrwcm.supabase.co</key>
+      <dict>
+        <key>NSExceptionAllowsInsecureHTTPLoads</key>
+        <false/>
+        <key>NSIncludesSubdomains</key>
+        <true/>
+      </dict>
+    </dict>
+  </dict>
+
+</additions>

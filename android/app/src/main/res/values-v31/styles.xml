@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ (API 31) splash screen — uses the new SplashScreen API -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <!-- Background color of the splash screen window -->
+        <item name="windowSplashScreenBackground">@color/colorPrimary</item>
+        <!-- Center icon (adaptive icon foreground) -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <!-- Icon background (same blue) -->
+        <item name="windowSplashScreenIconBackgroundColor">@color/colorPrimary</item>
+        <!-- Brand image shown below icon (optional — same as icon here) -->
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
+</resources>

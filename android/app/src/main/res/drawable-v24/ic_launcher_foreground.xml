@@ -1,0 +1,94 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- ── DrivePass+ icon: car silhouette + water drops ── -->
+    <!-- Centered in 108×108, safe zone = 72×72 (18dp padding each side) -->
+
+    <!-- Car body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="
+          M28,66
+          L28,58
+          Q28,55 31,54
+          L38,51
+          Q40,48 44,46
+          L64,46
+          Q68,46 70,49
+          L77,54
+          Q80,55 80,58
+          L80,66
+          Q80,68 78,68
+          L73,68
+          Q72,71 69,71
+          Q66,71 65,68
+          L43,68
+          Q42,71 39,71
+          Q36,71 35,68
+          L30,68
+          Q28,68 28,66 Z" />
+
+    <!-- Windshield cutout (darker layer to simulate glass) -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="
+          M40,46
+          L44,46
+          L42,54
+          L34,54
+          L35,52
+          Q37,48 40,46 Z" />
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="
+          M68,46
+          L64,46
+          L66,54
+          L74,54
+          L73,52
+          Q71,48 68,46 Z" />
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M44,46 L64,46 L66,54 L42,54 Z" />
+
+    <!-- Left wheel -->
+    <path
+        android:fillColor="#1d4ed8"
+        android:pathData="M39,71 A5,5 0 1,1 39,70.99 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M39,71 A2.5,2.5 0 1,1 39,70.99 Z" />
+
+    <!-- Right wheel -->
+    <path
+        android:fillColor="#1d4ed8"
+        android:pathData="M69,71 A5,5 0 1,1 69,70.99 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M69,71 A2.5,2.5 0 1,1 69,70.99 Z" />
+
+    <!-- Water drops (above car, top-center) -->
+    <!-- Drop 1 (left) -->
+    <path
+        android:fillColor="#93C5FD"
+        android:pathData="M40,39 Q40,36 38,34 Q36,36 36,39 A2,2 0 0,0 40,39 Z" />
+
+    <!-- Drop 2 (center) -->
+    <path
+        android:fillColor="#BFDBFE"
+        android:pathData="M55,37 Q55,33 53,31 Q51,33 51,37 A2,2 0 0,0 55,37 Z" />
+
+    <!-- Drop 3 (right) -->
+    <path
+        android:fillColor="#93C5FD"
+        android:pathData="M70,39 Q70,36 68,34 Q66,36 66,39 A2,2 0 0,0 70,39 Z" />
+
+    <!-- "+" symbol (top-right accent) -->
+    <path
+        android:fillColor="#FDE047"
+        android:pathData="M76,32 L76,29 L79,29 L79,32 L82,32 L82,35 L79,35 L79,38 L76,38 L76,35 L73,35 L73,32 Z" />
+
+</vector>

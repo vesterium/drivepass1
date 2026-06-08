@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DrivePass+</string>
+    <string name="title_activity_main">DrivePass+</string>
+    <string name="package_name">uz.drivepass.app</string>
+    <string name="custom_url_scheme">uz.drivepass.app</string>
+</resources>
