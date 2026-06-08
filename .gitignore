@@ -1,42 +1,61 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-
-# Build outputs
-dist/
-build/
-
-# Environment variables (СЕКРЕТЫ — никогда не коммитить!)
+# ══════════════════════════════════════════════
+#  СЕКРЕТЫ — НИКОГДА НЕ КОММИТИТЬ В GIT
+# ══════════════════════════════════════════════
 .env
 .env.local
 .env.*.local
 .env.production
+.env.staging
+.env.development
 
-# Vercel
+# Vercel токены
 .vercel
 
-# Android build artifacts
+# Android ключи подписи (СЕКРЕТ!)
+*.jks
+*.keystore
+android/app/release/
+google-services.json
+GoogleService-Info.plist
+
+# iOS ключи
+*.p12
+*.mobileprovision
+*.p8
+ios/App/App/GoogleService-Info.plist
+
+# ══════════════════════════════════════════════
+#  ЗАВИСИМОСТИ
+# ══════════════════════════════════════════════
+node_modules/
+.pnp
+.pnp.js
+
+# ══════════════════════════════════════════════
+#  BUILD АРТЕФАКТЫ
+# ══════════════════════════════════════════════
+dist/
+build/
+
+# Android
 android/app/build/
 android/.gradle/
 android/build/
 android/local.properties
 
-# iOS build artifacts
+# iOS
 ios/App/Pods/
 ios/App/App.xcworkspace/xcuserdata/
 ios/DerivedData/
 *.ipa
 *.xcarchive
 
-# Keystore (СЕКРЕТ — не коммитить!)
-*.jks
-*.keystore
-google-services.json
-
-# OS files
+# ══════════════════════════════════════════════
+#  СИСТЕМНЫЕ ФАЙЛЫ
+# ══════════════════════════════════════════════
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # IDE
 .idea/
@@ -47,9 +66,10 @@ Thumbs.db
 *.njsproj
 *.sln
 
-# Logs
+# Логи
 *.log
 npm-debug.log*
+yarn-debug.log*
 
-# Sharp (dev tool)
+# Скрипты генерации (dev only)
 scripts/
