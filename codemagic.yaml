@@ -9,10 +9,11 @@ workflows:
     environment:
       node: 22.0.0
       java: 21
-      groups:
-        - supabase_credentials
       vars:
         PACKAGE_NAME: "uz.drivepass.app"
+        VITE_SUPABASE_URL: "https://fipbpyjoydyqfvcfrwcm.supabase.co"
+        VITE_SUPABASE_PROJECT_ID: "fipbpyjoydyqfvcfrwcm"
+        VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpcGJweWpveWR5cWZ2Y2Zyd2NtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY1NzUzNDksImV4cCI6MjA4MjE1MTM0OX0.lxY_KarupmyN6H2Yv1lzexabNEv5NsI4YJFDAWRbCeE"
 
     scripts:
       - name: Install dependencies
