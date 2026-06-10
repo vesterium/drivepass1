@@ -18,6 +18,12 @@ workflows:
       - name: Install dependencies
         script: npm ci
 
+      - name: Create .env for build
+        script: |
+          echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" > .env
+          echo "VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY" >> .env
+          echo "VITE_SUPABASE_PROJECT_ID=$VITE_SUPABASE_PROJECT_ID" >> .env
+
       - name: Build web app
         script: npm run build
 
