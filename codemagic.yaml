@@ -9,8 +9,6 @@ workflows:
     environment:
       node: 22.0.0
       java: 21
-      android_signing:
-        - drivepass_keystore        # настраивается в Codemagic UI
       groups:
         - supabase_credentials
       vars:
@@ -31,15 +29,8 @@ workflows:
           cd android
           ./gradlew assembleDebug
 
-      - name: Build Android Release AAB
-        script: |
-          cd android
-          ./gradlew bundleRelease
-
     artifacts:
       - android/app/build/outputs/apk/debug/app-debug.apk
-      - android/app/build/outputs/bundle/release/app-release.aab
-      - android/app/build/outputs/**/*.apk
 
     publishing:
       email:
