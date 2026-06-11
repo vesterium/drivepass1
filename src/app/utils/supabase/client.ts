@@ -2,32 +2,25 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { projectId, publicAnonKey } from './info';
 import { nativeStorage } from '../../core/native/storage';
 
-/**
- * Кастомный fetch — подавляет AuthRetryableFetchError и TypeError: Failed to fetch
- * в консоли, сохраняя корректное поведение повторных попыток Supabase SDK.
- */
-const resilientFetch: typeof fetch = async (input, init) => {
-  try {
-    return await fetch(input, init);
-  } catch (err: any) {
-    throw err;
-  }
-};
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || `https://${projectId}.supabase.co`;
+const supabaseKey = publicAnonKey || import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+if (!supabaseUrl || supabaseUrl === 'https://.supabase.co') {
+  console.error('[Supabase] VITE_SUPABASE_URL / VITE_SUPABASE_PROJECT_ID is missing!');
+}
+if (!supabaseKey) {
+  console.error('[Supabase] VITE_SUPABASE_ANON_KEY is missing!');
+}
 
 export const supabase = createSupabaseClient(
-  `https://${projectId}.supabase.co`,
-  publicAnonKey,
+  supabaseUrl,
+  supabaseKey || 'placeholder-key',
   {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: false,
-      // Native: @capacitor/preferences (survives OS kill + memory pressure)
-      // Web: localStorage fallback
       storage: nativeStorage,
-    },
-    global: {
-      fetch: resilientFetch,
     },
   }
 );
