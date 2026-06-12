@@ -29,25 +29,25 @@
 
       html {
         height: 100%;
-        /* НЕ overflow:hidden — иначе скролл заблокирован везде */
+        height: -webkit-fill-available;
         overscroll-behavior: none;
       }
 
       body {
         height: 100%;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
         margin: 0;
         padding: 0;
-        /* Белый фон — без синего флеша при загрузке */
         background-color: #ffffff;
-        /* Запрет "резинки" на iOS */
         overscroll-behavior-y: none;
-        /* Плавный скролл как в нативном приложении */
         -webkit-overflow-scrolling: touch;
       }
 
       #root {
         height: 100%;
-        /* Позволяем дочерним контейнерам скроллиться */
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
         overflow: visible;
       }
 

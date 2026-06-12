@@ -324,11 +324,12 @@ function AppContent() {
           overflowX: 'hidden',
           WebkitOverflowScrolling: 'touch' as any,
           overscrollBehaviorY: 'contain',
-          // Высота = весь экран, скролл внутри
-          height: '100dvh',
+          // dvh fallback для старых Android
+          height: '100svh',
+          minHeight: '-webkit-fill-available',
         }}
       >
-        <main className="max-w-md mx-auto">
+        <main className="w-full max-w-lg mx-auto">
           <PageWrapper viewKey={isPartnerMode ? 'partner' : currentView}>
             {renderView()}
           </PageWrapper>

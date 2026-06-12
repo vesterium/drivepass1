@@ -264,11 +264,10 @@ body {
 /* Splash screen стиль отключён — фон управляется React компонентами,
    чтобы не было синего мигания при загрузке */
 
-/* Улучшение кнопок - больше область нажатия */
+/* Улучшение кнопок - больше область нажатия (только высота, ширина свободная) */
 button,
 a {
   min-height: 44px;
-  min-width: 44px;
 }
 
 /* ========================================
@@ -474,7 +473,7 @@ nav.fixed,
   -webkit-transform: translateZ(0);
 }
 
-/* Prevent layout thrash — НЕ используем contain:strict чтобы не блокировать скролл */
+/* Prevent layout thrash */
 main {
-  contain: style;
+  contain: none;
 }
