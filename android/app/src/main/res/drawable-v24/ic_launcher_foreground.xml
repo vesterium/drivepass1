@@ -1,94 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- ── DrivePass+ icon: car silhouette + water drops ── -->
-    <!-- Centered in 108×108, safe zone = 72×72 (18dp padding each side) -->
+    <!-- Glassmorphism card (white translucent rounded square) -->
+    <path
+        android:fillColor="#40FFFFFF"
+        android:pathData="M22,18 Q18,18 18,22 L18,86 Q18,90 22,90 L86,90 Q90,90 90,86 L90,22 Q90,18 86,18 Z" />
+
+    <!-- Top rail of car wash -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M28,35 Q28,32 31,32 L77,32 Q80,32 80,35 L80,39 Q80,42 77,42 L31,42 Q28,42 28,39 Z" />
+
+    <!-- Left brush pole -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,42 L38,42 L38,75 L34,75 Z" />
+
+    <!-- Left brush bristles (left side) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,45 L34,48 L34,51 L24,48 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,53 L34,56 L34,59 L24,56 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,61 L34,64 L34,67 L24,64 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,69 L34,72 L34,75 L24,72 Z" />
+
+    <!-- Left brush bristles (right side) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,45 L48,48 L48,51 L38,48 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,53 L48,56 L48,59 L38,56 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,61 L48,64 L48,67 L38,64 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,69 L48,72 L48,75 L38,72 Z" />
+
+    <!-- Right brush pole -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,42 L74,42 L74,75 L70,75 Z" />
+
+    <!-- Right brush bristles (left side) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,45 L70,48 L70,51 L60,48 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,53 L70,56 L70,59 L60,56 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,61 L70,64 L70,67 L60,64 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,69 L70,72 L70,75 L60,72 Z" />
+
+    <!-- Right brush bristles (right side) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M74,45 L84,48 L84,51 L74,48 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M74,53 L84,56 L84,59 L74,56 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M74,61 L84,64 L84,67 L74,64 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M74,69 L84,72 L84,75 L74,72 Z" />
 
     <!-- Car body -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="
-          M28,66
-          L28,58
-          Q28,55 31,54
-          L38,51
-          Q40,48 44,46
-          L64,46
-          Q68,46 70,49
-          L77,54
-          Q80,55 80,58
-          L80,66
-          Q80,68 78,68
-          L73,68
-          Q72,71 69,71
-          Q66,71 65,68
-          L43,68
-          Q42,71 39,71
-          Q36,71 35,68
-          L30,68
-          Q28,68 28,66 Z" />
+        android:pathData="M43,70 L43,64 Q43,61 46,61 L51,61 L54,55 Q55,53 57,53 L63,53 Q65,53 66,55 L69,61 L72,61 Q75,61 75,64 L75,70 Q75,72 73,72 L45,72 Q43,72 43,70 Z" />
 
-    <!-- Windshield cutout (darker layer to simulate glass) -->
+    <!-- Car windshield (blue cutout) -->
     <path
         android:fillColor="#2563EB"
-        android:pathData="
-          M40,46
-          L44,46
-          L42,54
-          L34,54
-          L35,52
-          Q37,48 40,46 Z" />
-    <path
-        android:fillColor="#2563EB"
-        android:pathData="
-          M68,46
-          L64,46
-          L66,54
-          L74,54
-          L73,52
-          Q71,48 68,46 Z" />
-    <path
-        android:fillColor="#2563EB"
-        android:pathData="M44,46 L64,46 L66,54 L42,54 Z" />
+        android:pathData="M54,61 L57,55 Q57.5,53.5 59,53.5 L63,53.5 Q64.5,53.5 65,55 L68,61 Z" />
 
     <!-- Left wheel -->
     <path
-        android:fillColor="#1d4ed8"
-        android:pathData="M39,71 A5,5 0 1,1 39,70.99 Z" />
+        android:fillColor="#2563EB"
+        android:pathData="M51,72 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M39,71 A2.5,2.5 0 1,1 39,70.99 Z" />
+        android:pathData="M51,72 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0" />
 
     <!-- Right wheel -->
     <path
-        android:fillColor="#1d4ed8"
-        android:pathData="M69,71 A5,5 0 1,1 69,70.99 Z" />
+        android:fillColor="#2563EB"
+        android:pathData="M67,72 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M69,71 A2.5,2.5 0 1,1 69,70.99 Z" />
-
-    <!-- Water drops (above car, top-center) -->
-    <!-- Drop 1 (left) -->
-    <path
-        android:fillColor="#93C5FD"
-        android:pathData="M40,39 Q40,36 38,34 Q36,36 36,39 A2,2 0 0,0 40,39 Z" />
-
-    <!-- Drop 2 (center) -->
-    <path
-        android:fillColor="#BFDBFE"
-        android:pathData="M55,37 Q55,33 53,31 Q51,33 51,37 A2,2 0 0,0 55,37 Z" />
-
-    <!-- Drop 3 (right) -->
-    <path
-        android:fillColor="#93C5FD"
-        android:pathData="M70,39 Q70,36 68,34 Q66,36 66,39 A2,2 0 0,0 70,39 Z" />
-
-    <!-- "+" symbol (top-right accent) -->
-    <path
-        android:fillColor="#FDE047"
-        android:pathData="M76,32 L76,29 L79,29 L79,32 L82,32 L82,35 L79,35 L79,38 L76,38 L76,35 L73,35 L73,32 Z" />
+        android:pathData="M67,72 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0" />
 
 </vector>
