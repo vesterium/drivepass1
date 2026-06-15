@@ -61,12 +61,25 @@ export async function initNativePlugins() {
 
 // ── Back button (Android) ─────────────────────────────────────────────────────
 
+let backPressedOnce = false;
+
 export function registerBackButton(onBack: () => boolean) {
   if (!isNative || platform !== 'android') return () => {};
   const listenerPromise = App.addListener('backButton', ({ canGoBack }) => {
     const handled = onBack();
     if (!handled && !canGoBack) {
-      App.exitApp();
+      // Double-press back to exit — prevents accidental app exit
+      if (backPressedOnce) {
+        App.exitApp();
+      } else {
+        backPressedOnce = true;
+        // Show native toast would be ideal but we use a simple timeout reset
+        setTimeout(() => { backPressedOnce = false; }, 2000);
+        // Dispatch custom event so React can show a toast
+        window.dispatchEvent(new CustomEvent('drivepass:back-press-warning'));
+      }
+    } else {
+      backPressedOnce = false;
     }
   });
   return () => { listenerPromise.then(l => l.remove()); };

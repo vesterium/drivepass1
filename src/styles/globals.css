@@ -371,15 +371,15 @@ a, button {
    CAPACITOR / NATIVE APP
    ======================================== */
 
-/* Нижняя навбар подтягивается выше home indicator на iOS */
+/* Нижняя навбар — выше home indicator / gesture bar */
 .native-bottom-nav {
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-  height: calc(68px + max(0px, env(safe-area-inset-bottom)));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  height: calc(68px + max(12px, env(safe-area-inset-bottom)));
 }
 
-/* Отступ под навбар с учётом safe area */
+/* Контент не уходит под навбар */
 .pb-safe-nav {
-  padding-bottom: calc(72px + max(0px, env(safe-area-inset-bottom)));
+  padding-bottom: calc(80px + max(12px, env(safe-area-inset-bottom)));
 }
 
 /* Клавиатура открыта — скрываем навбар */

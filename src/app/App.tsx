@@ -124,6 +124,13 @@ function AppContent() {
     return unregister;
   }, [currentView, isPartnerMode]);
 
+  // Show "press back again to exit" toast
+  useEffect(() => {
+    const handler = () => toast('Нажмите ещё раз для выхода', { duration: 2000 });
+    window.addEventListener('drivepass:back-press-warning', handler);
+    return () => window.removeEventListener('drivepass:back-press-warning', handler);
+  }, []);
+
   // Re-check session when app comes back to foreground (native)
   useEffect(() => {
     const unreg = onAppResume(() => {
@@ -323,8 +330,8 @@ function AppContent() {
           overflowY: 'auto',
           overflowX: 'hidden',
           WebkitOverflowScrolling: 'touch' as any,
-          overscrollBehaviorY: 'contain',
-          // dvh fallback для старых Android
+          overscrollBehavior: 'none',
+          touchAction: 'pan-y',
           height: '100svh',
           minHeight: '-webkit-fill-available',
         }}
