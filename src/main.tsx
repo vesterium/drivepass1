@@ -38,13 +38,8 @@ async function bootstrap() {
 
     createRoot(root).render(<App />);
 
-    if (isNative) {
-      setTimeout(() => {
-        registerPushNotifications().then((token) => {
-          if (token) console.log('[DrivePass] Push token registered');
-        }).catch(console.warn);
-      }, 4000);
-    }
+    // Push notifications disabled until Firebase is configured
+    // if (isNative) { setTimeout(() => registerPushNotifications(), 4000); }
   } catch (err) {
     console.error('[DrivePass] bootstrap error', err);
     showFatalError(err);

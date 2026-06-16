@@ -128,35 +128,17 @@ export async function hapticWarning() {
 }
 
 // ── Push Notifications ────────────────────────────────────────────────────────
+// Отключено до настройки Firebase Cloud Messaging (google-services.json)
+// Без FCM конфига PushNotifications.register() вызывает краш на Android
 
 export async function registerPushNotifications(): Promise<string | null> {
-  if (!isNative) return null;
-  try {
-    let permStatus = await PushNotifications.checkPermissions();
-    if (permStatus.receive === 'prompt') {
-      permStatus = await PushNotifications.requestPermissions();
-    }
-    if (permStatus.receive !== 'granted') return null;
-
-    await PushNotifications.register();
-
-    return new Promise((resolve) => {
-      PushNotifications.addListener('registration', (token) => resolve(token.value));
-      PushNotifications.addListener('registrationError', () => resolve(null));
-    });
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 export function addPushNotificationListener(
-  onNotification: (title: string, body: string, data: Record<string, unknown>) => void
+  _onNotification: (title: string, body: string, data: Record<string, unknown>) => void
 ) {
-  if (!isNative) return () => {};
-  const p = PushNotifications.addListener('pushNotificationReceived', (n) => {
-    onNotification(n.title ?? '', n.body ?? '', (n.data as Record<string, unknown>) ?? {});
-  });
-  return () => { p.then(l => l.remove()); };
+  return () => {};
 }
 
 // ── Camera Permissions ────────────────────────────────────────────────────────
