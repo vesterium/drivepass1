@@ -70,8 +70,6 @@
     <!-- Haptics -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <!-- Push notifications (Android 13+) -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Push notifications disabled until Firebase is configured -->
 
 </manifest>
