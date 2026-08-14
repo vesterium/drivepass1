@@ -1,16 +1,9 @@
 /**
- * apiClient — centralised fetch helper for DrivePass+ Edge Function calls.
+ * apiClient — centralised fetch helper for the DrivePass+ backend.
  *
- * Why two headers?
- * ─────────────────
- * The Supabase Edge Function **gateway** validates the `Authorization` header
- * and rejects user JWTs in many project configurations, returning:
- *   {"code": 401, "message": "Invalid JWT"}
- *
- * The only value guaranteed to pass the gateway is the project `publicAnonKey`.
- * Our own server-side `verifyUser()` reads the real user JWT from the
- * `X-User-Token` header instead, so auth is still enforced — just not by
- * the gateway layer.
+ * Auth is a single Bearer token issued by our own backend after Telegram login
+ * (POST /auth/telegram) -- no Supabase gateway anon-key dance needed, this isn't a
+ * Supabase Edge Function anymore.
  *
  * Usage
  * ─────
@@ -21,17 +14,13 @@
  *   });
  */
 
-import { publicAnonKey, projectId } from './supabase/info';
-
-const API_BASE =
-  `https://${projectId}.supabase.co/functions/v1/make-server-80c25f01`;
+const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 /**
  * Returns the headers object to use for all API requests.
  *
- * @param accessToken  User's Supabase JWT (from AuthContext). May be null for
- *                     routes that don't require auth (gateway still needs anon
- *                     key in that case).
+ * @param accessToken  User's access token (from AuthContext). Pass null for routes that
+ *                     don't require auth.
  */
 export function apiHeaders(
   accessToken: string | null,
@@ -39,13 +28,10 @@ export function apiHeaders(
 ): Record<string, string> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    // Gateway auth: publicAnonKey always passes Supabase's own JWT check
-    'Authorization': `Bearer ${publicAnonKey}`,
     ...extra,
   };
-  // Server auth: our verifyUser() reads this header to identify the real user
   if (accessToken) {
-    headers['X-User-Token'] = accessToken;
+    headers['Authorization'] = `Bearer ${accessToken}`;
   }
   return headers;
 }

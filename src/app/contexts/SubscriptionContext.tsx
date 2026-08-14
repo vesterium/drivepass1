@@ -18,22 +18,11 @@ import {
   ReactNode,
 } from 'react';
 import { nativeStorage } from '../core/native/storage';
-import { projectId } from '../utils/supabase/info';
 import { useAuth } from './AuthContext';
 import { apiHeaders, apiUrl } from '../utils/apiClient';
+import type { Subscription } from '../core/types';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────────────────────────────────────
-
-export interface Subscription {
-  id: string;
-  tier: 'personal' | 'business';
-  status: 'active' | 'expired' | 'cancelled';
-  carPlate: string;
-  expiresAt: string;
-  activatedAt: string;
-}
+export type { Subscription };
 
 interface SubscriptionContextValue {
   /** null = нет подписки | Subscription = есть запись */
@@ -83,8 +72,6 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const API = `https://${projectId}.supabase.co/functions/v1/make-server-80c25f01`;
-
   const refresh = useCallback(async () => {
     if (!accessToken) {
       setSubscription(null);
@@ -106,8 +93,9 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       clearTimeout(timeoutId);
 
       if (res.ok) {
-        const data = await res.json();
-        const sub: Subscription | null = data.subscription ?? null;
+        // GET /subscription returns the Subscription directly (or `null`), not wrapped in
+        // an envelope -- matches core/services/subscription.service.ts's own expectation.
+        const sub: Subscription | null = await res.json();
         setSubscription(sub);
         saveCache(sub);
       } else if (res.status >= 500) {

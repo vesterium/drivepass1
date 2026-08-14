@@ -1,14 +1,18 @@
 /**
- * AuthContext — единственный источник истины для сессии Supabase.
+ * AuthContext — единственный источник истины для сессии.
+ *
+ * Identity is Telegram, not Supabase: the widget hands us a signed payload, our backend
+ * verifies it, and issues its own access token (see POST /auth/telegram). That token is
+ * everything -- there's no separate Supabase session to keep in sync with.
  *
  * Гарантии:
- *  1. onAuthStateChange ВСЕГДА синхронизирует состояние с реальной сессией.
- *  2. После signInWithPassword — принудительный getSession() как страховка.
- *  3. session / user доступны любому компоненту без prop-drilling.
+ *  1. Токен персистится через nativeStorage (Capacitor Preferences / localStorage).
+ *  2. refreshSession() всегда перепроверяет токен через GET /me на старте приложения.
+ *  3. user / accessToken доступны любому компоненту без prop-drilling.
  *  4. Переход Auth → App происходит исключительно через изменение `user`:
  *       undefined → ещё инициализируется  (спиннер)
  *       null      → не авторизован        (показываем Auth)
- *       User obj  → авторизован           (показываем App)
+ *       AuthUser  → авторизован           (показываем App)
  */
 
 import {
@@ -19,19 +23,27 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../utils/supabase/client';
+import { nativeStorage } from '../core/native/storage';
+import { apiHeaders, apiUrl } from '../utils/apiClient';
+import type { TelegramAuthPayload } from '../components/TelegramLoginButton';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────────────────────────────────────
 
+export interface AuthUser {
+  id: number;
+  tg_id: number;
+  lang: string;
+}
+
 interface AuthContextValue {
-  /** undefined = loading | null = not signed in | User = signed in */
-  user: User | null | undefined;
-  session: Session | null;
+  /** undefined = loading | null = not signed in | AuthUser = signed in */
+  user: AuthUser | null | undefined;
   accessToken: string | null;
-  /** Принудительно обновляет сессию из Supabase (резервный триггер) */
+  /** Verifies the Telegram widget payload with our backend and starts the session. */
+  loginWithTelegram: (payload: TelegramAuthPayload) => Promise<boolean>;
+  /** Re-validates the stored token against the backend (resilient to being offline). */
   refreshSession: () => Promise<void>;
   /** Выход из системы */
   signOut: () => Promise<void>;
@@ -39,77 +51,78 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue>({
   user: undefined,
-  session: null,
   accessToken: null,
+  loginWithTelegram: async () => false,
   refreshSession: async () => {},
   signOut: async () => {},
 });
+
+const TOKEN_KEY = 'dp_access_token';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Provider
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser]               = useState<User | null | undefined>(undefined);
-  const [session, setSession]         = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  /** Применяет сессию (или null) к локальному стейту */
-  const applySession = useCallback((s: Session | null) => {
-    console.log('[Auth] applySession →', s ? `user=${s.user.id}` : 'null');
-    setSession(s);
-    setUser(s?.user ?? null);
-    setAccessToken(s?.access_token ?? null);
-  }, []);
-
-  /** Явно запрашивает текущую сессию у Supabase — страховочный механизм */
   const refreshSession = useCallback(async () => {
+    const token = await nativeStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      setUser(null);
+      setAccessToken(null);
+      return;
+    }
     try {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) {
-        // Сетевая ошибка при обновлении токена — не критично, оставляем текущее состояние
-        if (!error.message.includes('Failed to fetch') && !error.message.includes('NetworkError')) {
-          console.warn('[Auth] refreshSession error:', error.message);
-        }
+      const res = await fetch(apiUrl('/me'), { headers: apiHeaders(token) });
+      if (!res.ok) {
+        // Token expired or revoked server-side -- clear it, don't loop forever on it.
+        await nativeStorage.removeItem(TOKEN_KEY);
+        setUser(null);
+        setAccessToken(null);
         return;
       }
-      applySession(data.session);
+      const me = (await res.json()) as AuthUser;
+      setAccessToken(token);
+      setUser(me);
     } catch {
-      // Офлайн или Edge Runtime недоступен — тихо игнорируем
+      // Offline / backend unreachable -- keep the token and stay signed in with what we
+      // have rather than force a logout; the next successful refresh will reconcile.
+      setAccessToken(token);
     }
-  }, [applySession]);
+  }, []);
+
+  const loginWithTelegram = useCallback(async (payload: TelegramAuthPayload): Promise<boolean> => {
+    try {
+      const res = await fetch(apiUrl('/auth/telegram'), {
+        method: 'POST',
+        headers: apiHeaders(null),
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) return false;
+      const body = (await res.json()) as { access_token: string; user: AuthUser };
+      await nativeStorage.setItem(TOKEN_KEY, body.access_token);
+      setAccessToken(body.access_token);
+      setUser(body.user);
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
 
   const signOut = useCallback(async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // Офлайн — принудительно очищаем локальный стейт
-      applySession(null);
-    }
-    // onAuthStateChange → SIGNED_OUT → applySession(null) автоматически
-  }, [applySession]);
+    await nativeStorage.removeItem(TOKEN_KEY);
+    setUser(null);
+    setAccessToken(null);
+  }, []);
 
   useEffect(() => {
-    let { data: { subscription } } = { data: { subscription: { unsubscribe: () => {} } } };
-    try {
-      const result = supabase.auth.onAuthStateChange(
-        (_event, incomingSession) => {
-          applySession(incomingSession);
-        }
-      );
-      subscription = result.data.subscription;
-    } catch {
-      // Supabase недоступен — устанавливаем null и снимаем спиннер
-      applySession(null);
-    }
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [applySession]);
+    refreshSession();
+  }, [refreshSession]);
 
   return (
-    <AuthContext.Provider value={{ user, session, accessToken, refreshSession, signOut }}>
+    <AuthContext.Provider value={{ user, accessToken, loginWithTelegram, refreshSession, signOut }}>
       {children}
     </AuthContext.Provider>
   );
