@@ -1,14 +1,16 @@
 /**
  * Auth.tsx — DrivePass+
  *
- * Флоу входа: Telegram Login Widget → POST /auth/telegram (backend verifies the widget's
- * signature and issues our own access token) → AuthContext.loginWithTelegram → App.
+ * Флоу входа: bot-confirmed login. Open a deep link into the client bot (or scan it as a
+ * QR) -> the bot's /start handler confirms it the instant it's opened -> this screen polls
+ * the backend and picks up the session. No SMS/phone codes anywhere in the loop -- the
+ * Telegram Login Widget's own code delivery proved unreliable in practice, so this reuses
+ * the bot's own message delivery instead (see BotLoginPanel.tsx).
  *
  * No phone/password/SMS-OTP here anymore -- identity is Telegram end to end, matching the
  * two bots this PWA sits alongside.
  */
 
-import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,10 +20,10 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
+import { ArrowLeft } from 'lucide-react';
 import { DrivePassLogo } from './DrivePassLogo';
-import { TelegramLoginButton, type TelegramAuthPayload } from './TelegramLoginButton';
+import { BotLoginPanel } from './BotLoginPanel';
+import type { AuthUser } from '../contexts/AuthContext';
 
 // ─── Компактный языковой переключатель ───────────────────────────────────────
 function LangSwitcher() {
@@ -94,20 +96,14 @@ const L = {
 } as const;
 
 export function Auth({ role, onBack }: { role?: 'client' | 'partner' | null; onBack?: () => void }) {
-  const { loginWithTelegram } = useAuth();
+  const { completeLogin } = useAuth();
   const { language } = useLanguage();
-  const [error, setError] = useState<string | null>(null);
   const strings = L[language] ?? L.ru;
 
-  async function handleTelegramAuth(payload: TelegramAuthPayload) {
-    setError(null);
-    const ok = await loginWithTelegram(payload);
-    if (!ok) {
-      setError(strings.error);
-      toast.error(strings.error);
-    }
-    // On success, AuthContext's `user` flips from null to an AuthUser and App.tsx's own
-    // gating takes it from there -- nothing else to do here.
+  function handleConfirmed(accessToken: string, user: AuthUser) {
+    completeLogin(accessToken, user);
+    // AuthContext's `user` flips from null to an AuthUser and App.tsx's own gating takes
+    // it from there -- nothing else to do here.
   }
 
   return (
@@ -173,14 +169,7 @@ export function Auth({ role, onBack }: { role?: 'client' | 'partner' | null; onB
           <CardContent className="space-y-5 pb-8">
             <p className="text-center text-sm text-gray-600">{strings.prompt}</p>
 
-            <TelegramLoginButton onAuth={handleTelegramAuth} />
-
-            {error && (
-              <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                {error}
-              </div>
-            )}
+            <BotLoginPanel onConfirmed={handleConfirmed} />
           </CardContent>
         </Card>
       </motion.div>

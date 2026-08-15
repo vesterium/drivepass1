@@ -43,6 +43,9 @@ interface AuthContextValue {
   accessToken: string | null;
   /** Verifies the Telegram widget payload with our backend and starts the session. */
   loginWithTelegram: (payload: TelegramAuthPayload) => Promise<boolean>;
+  /** Persists a session already established elsewhere (bot-confirmed login's poll result
+   * already comes back with a token + user -- no separate verification call needed). */
+  completeLogin: (accessToken: string, user: AuthUser) => Promise<void>;
   /** Re-validates the stored token against the backend (resilient to being offline). */
   refreshSession: () => Promise<void>;
   /** Выход из системы */
@@ -53,6 +56,7 @@ const AuthContext = createContext<AuthContextValue>({
   user: undefined,
   accessToken: null,
   loginWithTelegram: async () => false,
+  completeLogin: async () => {},
   refreshSession: async () => {},
   signOut: async () => {},
 });
@@ -111,6 +115,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const completeLogin = useCallback(async (token: string, me: AuthUser) => {
+    await nativeStorage.setItem(TOKEN_KEY, token);
+    setAccessToken(token);
+    setUser(me);
+  }, []);
+
   const signOut = useCallback(async () => {
     await nativeStorage.removeItem(TOKEN_KEY);
     setUser(null);
@@ -122,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [refreshSession]);
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, loginWithTelegram, refreshSession, signOut }}>
+    <AuthContext.Provider value={{ user, accessToken, loginWithTelegram, completeLogin, refreshSession, signOut }}>
       {children}
     </AuthContext.Provider>
   );
