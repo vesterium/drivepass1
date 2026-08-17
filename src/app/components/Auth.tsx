@@ -22,8 +22,7 @@ import {
 } from './ui/card';
 import { ArrowLeft } from 'lucide-react';
 import { DrivePassLogo } from './DrivePassLogo';
-import { BotLoginPanel } from './BotLoginPanel';
-import type { AuthUser } from '../contexts/AuthContext';
+import { BotLoginPanel, type LoginConfirmation } from './BotLoginPanel';
 
 // ─── Компактный языковой переключатель ───────────────────────────────────────
 function LangSwitcher() {
@@ -100,10 +99,10 @@ export function Auth({ role, onBack }: { role?: 'client' | 'partner' | null; onB
   const { language } = useLanguage();
   const strings = L[language] ?? L.ru;
 
-  function handleConfirmed(accessToken: string, user: AuthUser) {
-    completeLogin(accessToken, user);
-    // AuthContext's `user` flips from null to an AuthUser and App.tsx's own gating takes
-    // it from there -- nothing else to do here.
+  function handleConfirmed({ accessToken, user, partnerAdmin }: LoginConfirmation) {
+    completeLogin(accessToken, user, partnerAdmin);
+    // AuthContext's `user`/`partnerAdmin` flips and App.tsx's own gating takes it from
+    // here -- nothing else to do in this component.
   }
 
   return (
@@ -169,7 +168,10 @@ export function Auth({ role, onBack }: { role?: 'client' | 'partner' | null; onB
           <CardContent className="space-y-5 pb-8">
             <p className="text-center text-sm text-gray-600">{strings.prompt}</p>
 
-            <BotLoginPanel onConfirmed={handleConfirmed} />
+            <BotLoginPanel
+              startPath={role === 'partner' ? '/partner/auth/telegram/start' : '/auth/telegram/start'}
+              onConfirmed={handleConfirmed}
+            />
           </CardContent>
         </Card>
       </motion.div>

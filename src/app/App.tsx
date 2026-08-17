@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { PartnerProvider } from './contexts/PartnerContext';
 import { Dashboard } from './components/Dashboard';
 import { Locations } from './components/Locations';
 import { Scanner } from './components/Scanner';
@@ -16,7 +17,6 @@ import { WashHistory } from './components/WashHistory';
 import { PartnerDashboard } from './components/PartnerDashboard';
 import { Onboarding } from './components/Onboarding';
 import { Auth } from './components/Auth';
-import { PartnerRegistration } from './components/PartnerRegistration';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { Loyalty } from './components/Loyalty';
 import { FrugalityIndex } from './components/FrugalityIndex';
@@ -68,7 +68,7 @@ function PageWrapper({ children, viewKey }: { children: React.ReactNode; viewKey
 // ─────────────────────────────────────────────────────────────────────────────
 
 function AppContent() {
-  const { user, accessToken, signOut } = useAuth();
+  const { user, partnerAdmin, accessToken, signOut } = useAuth();
   const { t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<ClientView>('dashboard');
@@ -100,17 +100,15 @@ function AppContent() {
     });
   }, []);
 
-  // После входа — редирект на нужный экран по роли
+  // После входа — редирект на нужный экран по типу сессии
   useEffect(() => {
-    if (!user) return;
-    const role = selectedRole;
-    if (role === 'partner') {
+    if (!user && !partnerAdmin) return;
+    if (partnerAdmin) {
       setIsPartnerMode(true);
     } else {
-      // Клиент или неизвестная роль → главный экран
       setCurrentView('dashboard');
     }
-  }, [user?.id]);
+  }, [user?.id, partnerAdmin?.id]);
 
   // Android back button
   useEffect(() => {
@@ -190,23 +188,18 @@ function AppContent() {
 
   if (showOnboarding) return <Onboarding onComplete={handleOnboardingComplete} />;
 
-  // ── WelcomeScreen: нет пользователя и роль ещё не выбрана ─────────────
-  if (!user && !selectedRole) {
+  const isSignedIn = !!user || !!partnerAdmin;
+
+  // ── WelcomeScreen: нет сессии и роль ещё не выбрана ─────────────────────
+  if (!isSignedIn && !selectedRole) {
     return <WelcomeScreen onSelectRole={handleRoleSelect} />;
   }
 
   // ── Auth: роль выбрана, но ещё не вошли ───────────────────────────────
-  if (!user) {
-    if (selectedRole === 'partner') {
-      return (
-        <PartnerRegistration
-          onBack={() => {
-            nativeStorage.removeItem('drivepass_role').catch(() => {});
-            setSelectedRole(null);
-          }}
-        />
-      );
-    }
+  // Same bot-confirmed login for both roles -- Auth picks the client or partner start
+  // path itself based on `role`. Partner accounts are owner-provisioned only (added via
+  // /admin_add in the bot); there's no self-registration screen anymore.
+  if (!isSignedIn) {
     return (
       <Auth
         role={selectedRole}
@@ -223,11 +216,9 @@ function AppContent() {
   const renderView = () => {
     if (isPartnerMode) {
       return (
-        <PartnerDashboard
-          onExitPartnerMode={() => setIsPartnerMode(false)}
-          accessToken={accessToken}
-          user={user}
-        />
+        <PartnerProvider>
+          <PartnerDashboard onExitPartnerMode={() => setIsPartnerMode(false)} accessToken={accessToken} />
+        </PartnerProvider>
       );
     }
 
@@ -259,7 +250,6 @@ function AppContent() {
           <Profile
             user={user}
             onViewHistory={() => setCurrentView('history')}
-            onSwitchToPartner={() => setIsPartnerMode(true)}
             onViewLoyalty={() => setCurrentView('loyalty')}
             onViewFrugality={() => setCurrentView('frugality')}
             onSignOut={handleSignOut}

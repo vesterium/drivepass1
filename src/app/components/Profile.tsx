@@ -5,9 +5,9 @@ import { nativeStorage } from '../core/native/storage';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ModalPortal } from './ModalPortal';
-import { 
+import {
   User, CreditCard, Bell, HelpCircle, LogOut, ChevronRight,
-  Phone, Calendar, Award, Receipt, Settings, Globe, Building2,
+  Phone, Calendar, Award, Receipt, Settings, Globe,
   Car, Shield, TrendingUp, CheckCircle2, AlertCircle, Trophy,
   X, ArrowRight, RefreshCw, Zap,
 } from 'lucide-react';
@@ -53,14 +53,13 @@ function SlimToggle({ value, onChange, disabled }: { value: boolean; onChange: (
 interface ProfileProps {
   user?: any;
   onViewHistory: () => void;
-  onSwitchToPartner: () => void;
   onViewLoyalty?: () => void;
   onViewFrugality?: () => void;
   onSignOut?: () => void;
   onShowLaunchChecklist?: () => void;
 }
 
-export function Profile({ user, onViewHistory, onSwitchToPartner, onViewLoyalty, onViewFrugality, onSignOut, onShowLaunchChecklist }: ProfileProps) {
+export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, onSignOut, onShowLaunchChecklist }: ProfileProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showManageModal, setShowManageModal] = useState(false);
@@ -460,30 +459,6 @@ export function Profile({ user, onViewHistory, onSwitchToPartner, onViewLoyalty,
               <p className="text-[11px] text-gray-400 mt-0.5">support@drivepass.uz</p>
             </div>
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-          </button>
-        </div>
-      </div>
-
-      {/* ── Partner Block ──────────────────────────────────────────── */}
-      <div className="px-5 mb-4">
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: 'linear-gradient(135deg,#7c3aed,#6d28d9)', boxShadow: '0 4px 20px rgba(124,58,237,0.25)' }}
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm">Partner Dashboard</p>
-              <p className="text-purple-200 text-xs mt-0.5">Управление вашей мойкой</p>
-            </div>
-          </div>
-          <button
-            onClick={onSwitchToPartner}
-            className="w-full bg-white text-purple-700 py-3 rounded-xl font-bold text-sm hover:bg-purple-50 active:scale-95 transition-all"
-          >
-            {t('profile.partnerMode')}
           </button>
         </div>
       </div>

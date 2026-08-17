@@ -17,22 +17,37 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { apiHeaders, apiUrl } from '../utils/apiClient';
-import type { AuthUser } from '../contexts/AuthContext';
+import type { AuthUser, PartnerAdminIdentity } from '../contexts/AuthContext';
 
 interface StartLoginResponse {
   state: string;
   deepLink: string;
 }
 
+export interface LoginConfirmation {
+  accessToken: string;
+  user?: AuthUser;
+  partnerAdmin?: PartnerAdminIdentity;
+}
+
 interface PollResponse {
   status: 'pending' | 'confirmed';
   access_token?: string;
   user?: AuthUser;
+  partnerAdmin?: PartnerAdminIdentity;
 }
 
 const POLL_INTERVAL_MS = 2000;
 
-export function BotLoginPanel({ onConfirmed }: { onConfirmed: (accessToken: string, user: AuthUser) => void }) {
+export function BotLoginPanel({
+  startPath = '/auth/telegram/start',
+  onConfirmed,
+}: {
+  /** Which login flow to start -- the default is the client bot; pass
+   * "/partner/auth/telegram/start" for the admin-bot-confirmed partner flow. */
+  startPath?: string;
+  onConfirmed: (confirmation: LoginConfirmation) => void;
+}) {
   const [deepLink, setDeepLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const stateRef = useRef<string | null>(null);
@@ -50,7 +65,7 @@ export function BotLoginPanel({ onConfirmed }: { onConfirmed: (accessToken: stri
     setDeepLink(null);
     stopPolling();
     try {
-      const res = await fetch(apiUrl('/auth/telegram/start'), { method: 'POST', headers: apiHeaders(null) });
+      const res = await fetch(apiUrl(startPath), { method: 'POST', headers: apiHeaders(null) });
       if (!res.ok) throw new Error('start failed');
       const body = (await res.json()) as StartLoginResponse;
       stateRef.current = body.state;
@@ -58,13 +73,13 @@ export function BotLoginPanel({ onConfirmed }: { onConfirmed: (accessToken: stri
     } catch {
       setError('Не удалось начать вход. Проверь соединение и попробуй ещё раз.');
     }
-  }, [stopPolling]);
+  }, [startPath, stopPolling]);
 
   useEffect(() => {
     start();
     return stopPolling;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [startPath]);
 
   useEffect(() => {
     if (!deepLink) return;
@@ -73,17 +88,24 @@ export function BotLoginPanel({ onConfirmed }: { onConfirmed: (accessToken: stri
       const state = stateRef.current;
       if (!state) return;
       try {
+        // The poll endpoint lives under /auth/telegram/poll regardless of which start
+        // path kicked things off -- it looks at the LoginRequest's own stored kind.
         const res = await fetch(apiUrl(`/auth/telegram/poll?state=${encodeURIComponent(state)}`));
         if (res.status === 404 || res.status === 410) {
           stopPolling();
           setError('Ссылка для входа устарела. Нажми «Попробовать снова».');
           return;
         }
+        if (res.status === 403) {
+          stopPolling();
+          setError('Этот Telegram-аккаунт не зарегистрирован как партнёр. Обратись к владельцу.');
+          return;
+        }
         if (!res.ok) return; // transient error -- keep polling
         const body = (await res.json()) as PollResponse;
-        if (body.status === 'confirmed' && body.access_token && body.user) {
+        if (body.status === 'confirmed' && body.access_token && (body.user || body.partnerAdmin)) {
           stopPolling();
-          onConfirmed(body.access_token, body.user);
+          onConfirmed({ accessToken: body.access_token, user: body.user, partnerAdmin: body.partnerAdmin });
         }
       } catch {
         // Offline for a beat -- next tick will retry, no need to surface an error yet.

@@ -5,16 +5,13 @@ import {
   User, Calendar, ChevronRight, CheckCheck,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { projectId } from '../utils/supabase/info';
 import { toast } from 'sonner';
 import jsQR from 'jsqr';
-import { apiHeaders } from '../utils/apiClient';
+import { apiHeaders, apiUrl } from '../utils/apiClient';
 import { requestCameraPermission, getCurrentPosition, hapticSuccess, hapticError } from '../core/native/capacitor';
 
 interface PartnerScannerProps {
   accessToken: string;
-  partnerId?: string;
-  partnerName?: string;
 }
 
 type ScanState = 'idle' | 'scanning' | 'validating' | 'valid' | 'invalid' | 'confirming' | 'confirmed';
@@ -31,7 +28,7 @@ interface ValidationResult {
   timeLeft?: string;
 }
 
-export function PartnerScanner({ accessToken, partnerId, partnerName }: PartnerScannerProps) {
+export function PartnerScanner({ accessToken }: PartnerScannerProps) {
   const [state, setState]                       = useState<ScanState>('idle');
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [scannedToken, setScannedToken]         = useState<string>('');
@@ -46,7 +43,6 @@ export function PartnerScanner({ accessToken, partnerId, partnerName }: PartnerS
   const scanLoopRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
   const lastTokenRef = useRef<string>('');
 
-  const API     = `https://${projectId}.supabase.co/functions/v1/make-server-80c25f01`;
   const headers = apiHeaders(accessToken);
 
   const stopCamera = useCallback(() => {
@@ -64,7 +60,7 @@ export function PartnerScanner({ accessToken, partnerId, partnerName }: PartnerS
     setState('validating');
     setScannedToken(token);
     try {
-      const res  = await fetch(`${API}/qr/validate`, { method: 'POST', headers, body: JSON.stringify({ token }) });
+      const res  = await fetch(apiUrl('/partner/qr/validate'), { method: 'POST', headers, body: JSON.stringify({ token }) });
       const data = await res.json();
       setValidationResult(data);
       setState(data.valid ? 'valid' : 'invalid');
@@ -142,15 +138,10 @@ export function PartnerScanner({ accessToken, partnerId, partnerName }: PartnerS
     if (geoPos) { lat = geoPos.lat; lng = geoPos.lng; }
 
     try {
-      const res = await fetch(`${API}/qr/confirm-wash`, {
+      const res = await fetch(apiUrl('/partner/qr/confirm-wash'), {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          token: scannedToken,
-          partnerId: partnerId || 'partner-demo',
-          partnerName: partnerName || 'Автомойка',
-          lat, lng,
-        }),
+        body: JSON.stringify({ token: scannedToken, lat, lng }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -181,10 +172,10 @@ export function PartnerScanner({ accessToken, partnerId, partnerName }: PartnerS
     if (!manualPlate.trim()) return;
     setState('validating');
     try {
-      const res  = await fetch(`${API}/qr/validate-plate`, {
+      const res  = await fetch(apiUrl('/partner/qr/validate-plate'), {
         method: 'POST',
         headers,
-        body: JSON.stringify({ carPlate: manualPlate.trim().toUpperCase(), partnerId }),
+        body: JSON.stringify({ carPlate: manualPlate.trim().toUpperCase() }),
       });
       const data = await res.json();
       setValidationResult(data);

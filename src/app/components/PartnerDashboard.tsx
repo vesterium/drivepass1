@@ -15,17 +15,15 @@ import {
   ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { useLanguage } from '../contexts/LanguageContext';
-import { projectId } from '../utils/supabase/info';
+import { usePartner } from '../contexts/PartnerContext';
 import { PartnerScanner } from './PartnerScanner';
 import { PartnerSettings } from './PartnerSettings';
-import { toast } from 'sonner';
-import { apiHeaders } from '../utils/apiClient';
+import { apiHeaders, apiUrl } from '../utils/apiClient';
 import { PayoutReports } from './PayoutReports';
 
 interface PartnerDashboardProps {
   onExitPartnerMode: () => void;
   accessToken?: string | null;
-  user?: any;
 }
 
 type Tab = 'overview' | 'scanner' | 'analytics' | 'payouts' | 'settings';
@@ -69,28 +67,26 @@ function ChartTooltip({ active, payload, label }: any) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function PartnerDashboard({ onExitPartnerMode, accessToken, user }: PartnerDashboardProps) {
+export function PartnerDashboard({ onExitPartnerMode, accessToken }: PartnerDashboardProps) {
   const { t } = useLanguage();
+  const { profile } = usePartner();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [tabDir, setTabDir] = useState(0);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const API = `https://${projectId}.supabase.co/functions/v1/make-server-80c25f01`;
   const headers = apiHeaders(accessToken);
 
-  const PARTNER_ID = user?.id || 'partner-anonymous';
-  const PARTNER_NAME = user?.user_metadata?.partner_name
-    || user?.user_metadata?.name
-    || 'Car Wash Partner';
+  const PARTNER_ID = profile?.partnerId ?? '';
+  const PARTNER_NAME = profile?.partnerName ?? 'Car Wash Partner';
 
   useEffect(() => { if (accessToken) fetchStats(false); }, [accessToken]);
 
   const fetchStats = async (isRefresh = true) => {
     isRefresh ? setRefreshing(true) : setLoading(true);
     try {
-      const res = await fetch(`${API}/partner/stats?partnerId=${PARTNER_ID}`, { headers });
+      const res = await fetch(apiUrl('/partner/stats'), { headers });
       if (res.ok) setStats(await res.json());
     } catch (e) {
       console.error('Stats error:', e);
@@ -468,11 +464,7 @@ export function PartnerDashboard({ onExitPartnerMode, accessToken, user }: Partn
                 </Card>
 
                 {accessToken ? (
-                  <PartnerScanner
-                    accessToken={accessToken}
-                    partnerId={PARTNER_ID}
-                    partnerName={PARTNER_NAME}
-                  />
+                  <PartnerScanner accessToken={accessToken} />
                 ) : (
                   <Card className="text-center py-8">
                     <p className="text-[15px] text-red-500 mb-1">Требуется авторизация</p>
@@ -615,18 +607,10 @@ export function PartnerDashboard({ onExitPartnerMode, accessToken, user }: Partn
             )}
 
             {/* ── PAYOUTS ──────────────────────────────────────────── */}
-            {activeTab === 'payouts' && (
-              <PayoutReports
-                partnerId={PARTNER_ID}
-                partnerName={PARTNER_NAME}
-                accessToken={accessToken}
-              />
-            )}
+            {activeTab === 'payouts' && <PayoutReports accessToken={accessToken} />}
 
             {/* ── SETTINGS ─────────────────────────────────────────── */}
-            {activeTab === 'settings' && (
-              <PartnerSettings user={user} onExitPartnerMode={onExitPartnerMode} />
-            )}
+            {activeTab === 'settings' && <PartnerSettings onExitPartnerMode={onExitPartnerMode} />}
 
           </motion.div>
         </AnimatePresence>
