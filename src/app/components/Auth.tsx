@@ -170,6 +170,7 @@ export function Auth({ role, onBack }: { role?: 'client' | 'partner' | null; onB
 
             <BotLoginPanel
               startPath={role === 'partner' ? '/partner/auth/telegram/start' : '/auth/telegram/start'}
+              role={role}
               onConfirmed={handleConfirmed}
             />
           </CardContent>
