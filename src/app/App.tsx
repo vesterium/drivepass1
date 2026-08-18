@@ -19,10 +19,7 @@ import { Onboarding } from './components/Onboarding';
 import { Auth } from './components/Auth';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { InstallPrompt } from './components/InstallPrompt';
-import { LaunchChecklist } from './components/LaunchChecklist';
-import { LaunchControlCenter } from './components/LaunchControlCenter';
 import { useLanguage } from './contexts/LanguageContext';
-import { SmartLoadBalancer } from './components/SmartLoadBalancer';
 import { DrivePassLogo } from './components/DrivePassLogo';
 import { NetworkBanner } from './components/NetworkBanner';
 import { ErrorBoundary } from './core/errors/ErrorBoundary';
@@ -62,7 +59,7 @@ function PageWrapper({ children, viewKey }: { children: React.ReactNode; viewKey
 // ─────────────────────────────────────────────────────────────────────────────
 
 function AppContent() {
-  const { user, partnerAdmin, accessToken, signOut } = useAuth();
+  const { user, partnerAdmin, accessToken, signOut, refreshSession } = useAuth();
   const { t } = useLanguage();
 
   const [currentView, setCurrentView] = useState<ClientView>('dashboard');
@@ -75,7 +72,6 @@ function AppContent() {
     setCurrentView(view);
   }, [currentView]);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showLaunchChecklist, setShowLaunchChecklist] = useState(false);
   const [storageReady, setStorageReady] = useState(false);
 
   // ── Выбранная роль на WelcomeScreen ─────────────────────────────────────
@@ -122,17 +118,12 @@ function AppContent() {
     return () => window.removeEventListener('drivepass:back-press-warning', handler);
   }, []);
 
-  // Re-check session when app comes back to foreground (native)
+  // Re-check session when app comes back to foreground (native) -- catches a token that
+  // expired or was revoked while the app sat backgrounded.
   useEffect(() => {
-    const unreg = onAppResume(() => {
-      // Supabase auto-refreshes tokens via onAuthStateChange,
-      // but we force a getSession to resync if the token expired while backgrounded.
-      import('./utils/supabase/client').then(({ supabase }) => {
-        supabase.auth.getSession().catch(() => {});
-      });
-    });
+    const unreg = onAppResume(() => { refreshSession(); });
     return unreg;
-  }, []);
+  }, [refreshSession]);
 
   const handleRoleSelect = (role: Role) => {
     nativeStorage.setItem('drivepass_role', role).catch(() => {});
@@ -219,7 +210,6 @@ function AppContent() {
             accessToken={accessToken}
             onGoToLocations={() => setCurrentView('locations')}
             onGoToHistory={() => setCurrentView('history')}
-            onGoToLoadBalancer={() => setCurrentView('loadbalancer')}
           />
         );
       case 'locations':
@@ -232,13 +222,10 @@ function AppContent() {
             user={user}
             onViewHistory={() => setCurrentView('history')}
             onSignOut={handleSignOut}
-            onShowLaunchChecklist={() => setShowLaunchChecklist(true)}
           />
         );
       case 'history':
         return <WashHistory onBack={() => setCurrentView('profile')} accessToken={accessToken} />;
-      case 'loadbalancer':
-        return <SmartLoadBalancer onBack={() => setCurrentView('dashboard')} />;
       default:
         return <Dashboard user={user} accessToken={accessToken} />;
     }
@@ -370,11 +357,6 @@ function AppContent() {
       <Toaster position="top-center" richColors />
       <NetworkBanner />
       <InstallPrompt />
-      <AnimatePresence>
-        {showLaunchChecklist && (
-          <LaunchControlCenter onClose={() => setShowLaunchChecklist(false)} />
-        )}
-      </AnimatePresence>
     </>
   );
 }

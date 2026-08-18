@@ -11,17 +11,15 @@ import { PRICING_PACKAGES } from '../constants/pricing';
 import { toast } from 'sonner';
 import { QRDisplay } from './QRDisplay';
 import { SubscriptionModal } from './SubscriptionModal';
-import { SmartLoadBalancer } from './SmartLoadBalancer';
 
 interface DashboardProps {
   user?: any;
   accessToken?: string | null;
   onGoToLocations?: () => void;
   onGoToHistory?: () => void;
-  onGoToLoadBalancer?: () => void;
 }
 
-export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, onGoToLoadBalancer }: DashboardProps) {
+export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory }: DashboardProps) {
   const { language } = useLanguage();
   const { subscription, hasActiveSubscription, refresh: refreshSubscription } = useSubscription();
 
@@ -356,28 +354,6 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, o
             </motion.button>
           ))}
         </div>
-      </motion.section>
-
-      {/* ── SMART LOAD BALANCER ─────────────────────────────────────────── */}
-      <motion.section
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.52, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-        className="px-5 mt-4"
-      >
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-medium text-blue-200 uppercase tracking-wider">Загруженность моек</p>
-          <button
-            onClick={onGoToLoadBalancer ?? onGoToLocations}
-            className="text-blue-200 text-xs font-medium hover:text-white transition-colors"
-          >
-            Live →
-          </button>
-        </div>
-        <SmartLoadBalancer
-          compact
-          onNavigate={onGoToLoadBalancer ? (_id, _name) => onGoToLoadBalancer() : (onGoToLocations ? (_id, _name) => onGoToLocations!() : undefined)}
-        />
       </motion.section>
 
       {/* ── SUBSCRIPTION MODAL ──────────────────────────────────────────── */}

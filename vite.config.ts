@@ -49,9 +49,6 @@ export default defineConfig({
           if (id.includes('@capacitor/')) {
             return 'capacitor';
           }
-          if (id.includes('@supabase/')) {
-            return 'supabase';
-          }
           if (id.includes('motion') || id.includes('framer-motion')) {
             return 'motion';
           }

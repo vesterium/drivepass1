@@ -1,5 +1,5 @@
 import { toast } from 'sonner';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { openUrl } from '../core/native/capacitor';
 import { nativeStorage } from '../core/native/storage';
 import { createPortal } from 'react-dom';
@@ -53,10 +53,9 @@ interface ProfileProps {
   user?: any;
   onViewHistory: () => void;
   onSignOut?: () => void;
-  onShowLaunchChecklist?: () => void;
 }
 
-export function Profile({ user, onViewHistory, onSignOut, onShowLaunchChecklist }: ProfileProps) {
+export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -77,24 +76,6 @@ export function Profile({ user, onViewHistory, onSignOut, onShowLaunchChecklist 
   const [hapticFeedback, setHapticFeedback] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [autoRefreshQR, setAutoRefreshQR] = useState(true);
-
-  // Version tap counter for LaunchChecklist easter egg
-  const versionTapCount = useRef(0);
-  const versionTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleVersionTap = () => {
-    versionTapCount.current += 1;
-    if (versionTapTimer.current) clearTimeout(versionTapTimer.current);
-    if (versionTapCount.current >= 5) {
-      versionTapCount.current = 0;
-      onShowLaunchChecklist?.();
-      return;
-    }
-    if (versionTapCount.current === 3) {
-      toast('Ещё 2 раза для открытия панели запуска 🚀', { duration: 1500 });
-    }
-    versionTapTimer.current = setTimeout(() => { versionTapCount.current = 0; }, 2000);
-  };
 
   const { t, language, setLanguage } = useLanguage();
 
@@ -405,12 +386,9 @@ export function Profile({ user, onViewHistory, onSignOut, onShowLaunchChecklist 
             {t('profile.logOut')}
           </button>
         </div>
-        <button
-          onClick={handleVersionTap}
-          className="w-full text-center text-[10px] text-gray-300 tracking-wide py-1 select-none"
-        >
+        <p className="w-full text-center text-[10px] text-gray-300 tracking-wide py-1 select-none">
           DrivePass+ · {t('profile.version')} 1.0.0
-        </button>
+        </p>
       </div>
 
       {/* ── Cancel Modal ───────────────────────────────────────────── */}
