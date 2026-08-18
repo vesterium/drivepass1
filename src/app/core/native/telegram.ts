@@ -11,6 +11,8 @@ interface TelegramWebApp {
   closeScanQrPopup: () => void;
   ready: () => void;
   expand: () => void;
+  setHeaderColor?: (color: string) => void;
+  setBackgroundColor?: (color: string) => void;
 }
 
 declare global {
@@ -30,6 +32,11 @@ export function initTelegramMiniApp(): void {
   if (!webApp?.initData) return;
   webApp.ready();
   webApp.expand();
+  // The Desktop Telegram client leaves the strip around the Mini App white by default
+  // until told otherwise -- match it to our own brand color so it never shows through
+  // as a stray white sliver against the app's content.
+  try { webApp.setHeaderColor?.('#2563EB'); } catch {}
+  try { webApp.setBackgroundColor?.('#2563EB'); } catch {}
 }
 
 // showScanQrPopup shipped in Bot API 6.4 -- older Telegram clients won't have it even
