@@ -36,6 +36,8 @@ export interface AuthUser {
   id: number;
   tg_id: number;
   lang: string;
+  firstName: string;
+  memberSince: string;
 }
 
 export interface PartnerAdminIdentity {

@@ -9,12 +9,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { BRAND } from '../constants/branding';
 import { PRICING_PACKAGES } from '../constants/pricing';
-import { projectId } from '../utils/supabase/info';
-import { supabase } from '../utils/supabase/client';
 import { toast } from 'sonner';
 import { QRDisplay } from './QRDisplay';
 import { SubscriptionModal } from './SubscriptionModal';
-import { apiHeaders } from '../utils/apiClient';
 import { SmartLoadBalancer } from './SmartLoadBalancer';
 
 interface DashboardProps {
@@ -34,81 +31,18 @@ export function Dashboard({ user, accessToken, onGoToMarketplace, onGoToFrugalit
 
   const [showQR,                setShowQR]                = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [canWash,               setCanWash]               = useState(true);
-  const [timeLeft,              setTimeLeft]              = useState('');
-  const [loadingStatus,         setLoadingStatus]         = useState(true);
-  const [loyaltyPoints,         setLoyaltyPoints]         = useState(0);
+  const [loadingStatus,         setLoadingStatus]         = useState(false);
+  const [loyaltyPoints]                                   = useState(0);
 
-  const userName  = user?.user_metadata?.name?.split(' ')[0] || 'Привет';
-  const carNumber = user?.user_metadata?.car_number || '';
+  // Actual cooldown/exhausted-washes eligibility is enforced server-side at charge time
+  // (see visits.charge_visit) -- there's no live pre-check endpoint for the dashboard to
+  // call before that, so the QR button is always enabled here and a scan that's genuinely
+  // ineligible gets rejected at the mojka instead.
+  const canWash = true;
+  const timeLeft = '';
 
-  const API     = `https://${projectId}.supabase.co/functions/v1/make-server-80c25f01`;
-  const headers = apiHeaders(accessToken);
-
-  useEffect(() => {
-    if (!accessToken) return;
-    loadAll();
-    const iv = setInterval(checkCooldown, 60_000);
-    return () => clearInterval(iv);
-  }, [accessToken]);
-
-  const loadAll = async () => {
-    setLoadingStatus(true);
-    await Promise.all([checkCooldown(), fetchLoyalty()]);
-    setLoadingStatus(false);
-  };
-
-  const checkCooldown = async () => {
-    if (!carNumber) {
-      setCanWash(true);
-      return;
-    }
-    try {
-      const { data, error } = await supabase.rpc('check_wash_eligibility', {
-        vehicle_plate_input: carNumber,
-      });
-
-      if (error) {
-        // SQL-функция ещё не задеплоена в Supabase — молча считаем eligible
-        // Запустите check_wash_eligibility() в Supabase SQL Editor для активации антифрода
-        const isSilent =
-          error.message.includes('schema cache') ||
-          error.message.includes('Could not find') ||
-          error.message.includes('Failed to fetch') ||
-          error.message.includes('NetworkError') ||
-          error.message.includes('fetch') ||
-          (error as any).code === 'NETWORK_FETCH_ERROR';
-        if (!isSilent) {
-          console.warn('[Dashboard] RPC error:', error.message);
-        }
-        setCanWash(true);
-        setTimeLeft('');
-        return;
-      }
-
-      const result = data as { eligible: boolean; seconds_remaining: number };
-      setCanWash(result.eligible);
-
-      if (!result.eligible) {
-        const h = Math.floor(result.seconds_remaining / 3600);
-        const m = Math.floor((result.seconds_remaining % 3600) / 60);
-        setTimeLeft(h > 0 ? `${h}ч ${m}м` : `${m}м`);
-      } else {
-        setTimeLeft('');
-      }
-    } catch {
-      // Сеть недоступна — не блокируем пользователя
-      setCanWash(true);
-    }
-  };
-
-  const fetchLoyalty = async () => {
-    if (!accessToken) return;
-    try {
-      const res = await fetch(`${API}/loyalty/points`, { headers });
-      if (res.ok) { const d = await res.json(); setLoyaltyPoints(d.points || 0); }
-    } catch {}
-  };
+  const userName  = user?.firstName || 'Привет';
+  const carNumber = subscription?.carPlate || '';
 
   const handleQRClick = () => {
     if (!hasActiveSubscription) { setShowSubscriptionModal(true); return; }

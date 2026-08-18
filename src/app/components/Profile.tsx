@@ -121,18 +121,11 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
     { code: 'uz', name: 'Uzbek', nativeName: "O'zbekcha" }
   ];
 
-  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
-  const userPhone = user?.user_metadata?.formatted_phone || user?.user_metadata?.phone || 'Не указан';
-  const carNumber = user?.user_metadata?.car_number || 'Не указан';
-  const memberSince = user?.created_at 
-    ? new Date(user.created_at).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
-    : 'Январь 2025';
-
-  // ── Задача 4: Проверяем технический email — скрываем @drivepass.uz ───────
-  const userEmail = user?.email ?? '';
-  const isTechEmail = userEmail.endsWith('@drivepass.uz');
-  // Показываем email только если это настоящий адрес пользователя
-  const showEmail = !isTechEmail && userEmail.length > 0;
+  const userName = user?.firstName || 'Гость';
+  const carNumber = subscription?.carPlate || 'Не указан';
+  const memberSince = user?.memberSince
+    ? new Date(user.memberSince).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+    : '';
 
   // ── Задача 3: Цена в сумах из данных подписки ────────────────────────────
   const currentPkg = PRICING_PACKAGES[subscription?.tier as 'personal' | 'business'] ?? PRICING_PACKAGES.personal;
@@ -342,12 +335,9 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
       <div className="px-5 mb-4">
         <p className="text-[10px] text-gray-400 uppercase tracking-[0.14em] font-bold mb-2.5 px-1">{t('profile.account')}</p>
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-          {showEmail && (
-            <ProfileRow icon={<Phone className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title={t('profile.email')} value={userEmail} />
-          )}
-          <ProfileRow icon={<Phone className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title={t('profile.phone')} value={userPhone} />
+          <ProfileRow icon={<Phone className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title="Telegram ID" value={user?.tg_id ?? '—'} />
           <ProfileRow icon={<Car className="w-4 h-4 text-emerald-500" />} iconBg="bg-emerald-50" title={t('profile.carNumber')} value={<span className="font-mono font-bold text-sm">{carNumber}</span>} onPress={() => setShowManageModal(true)} />
-          <ProfileRow icon={<CreditCard className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title={t('profile.paymentMethod')} value="Payme / Click" />
+          <ProfileRow icon={<CreditCard className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title={t('profile.paymentMethod')} value="Банковская карта" />
         </div>
       </div>
 
