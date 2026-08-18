@@ -22,12 +22,13 @@ jobs:
           VITE_TELEGRAM_BOT_USERNAME: DrivePass_bot
         run: npm run build
 
-      - name: Deploy over SSH
-        uses: burnett01/rsync-deployments@7.0.1
+      - name: Load deploy key
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          switches: -avzr --delete
-          path: dist/
-          remote_path: /opt/drivepass-pwa/
-          remote_host: 62.238.98.200
-          remote_user: root
-          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Deploy over rsync
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 62.238.98.200 >> ~/.ssh/known_hosts
+          rsync -avzr --delete dist/ root@62.238.98.200:/opt/drivepass-pwa/
