@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Car, TrendingUp, Shield, CreditCard, Award, MapPin,
-  Clock, QrCode, Timer, ChevronRight, Zap, Sparkles,
-  Wrench, Droplets,
+  Clock, QrCode, Timer, ChevronRight, Zap,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -17,22 +16,18 @@ import { SmartLoadBalancer } from './SmartLoadBalancer';
 interface DashboardProps {
   user?: any;
   accessToken?: string | null;
-  onGoToMarketplace?: () => void;
-  onGoToFrugality?: () => void;
   onGoToLocations?: () => void;
   onGoToHistory?: () => void;
-  onGoToLoyalty?: () => void;
   onGoToLoadBalancer?: () => void;
 }
 
-export function Dashboard({ user, accessToken, onGoToMarketplace, onGoToFrugality, onGoToLocations, onGoToHistory, onGoToLoyalty, onGoToLoadBalancer }: DashboardProps) {
+export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, onGoToLoadBalancer }: DashboardProps) {
   const { language } = useLanguage();
   const { subscription, hasActiveSubscription, refresh: refreshSubscription } = useSubscription();
 
   const [showQR,                setShowQR]                = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [loadingStatus,         setLoadingStatus]         = useState(false);
-  const [loyaltyPoints]                                   = useState(0);
 
   // Actual cooldown/exhausted-washes eligibility is enforced server-side at charge time
   // (see visits.charge_visit) -- there's no live pre-check endpoint for the dashboard to
@@ -78,18 +73,6 @@ export function Dashboard({ user, accessToken, onGoToMarketplace, onGoToFrugalit
               <p className="text-[11px] text-blue-200 mt-0.5">{BRAND.slogan}</p>
             </div>
           </div>
-
-          {/* Points badge */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.15, duration: 0.3, ease: 'backOut' }}
-            className="flex items-center gap-1.5 bg-white/15 border border-white/20 rounded-xl px-3 py-2"
-          >
-            <Zap className="w-3.5 h-3.5 text-yellow-300" />
-            <span className="font-semibold text-sm">{loyaltyPoints}</span>
-            <span className="text-[10px] text-blue-200">pts</span>
-          </motion.div>
         </div>
 
         {/* Greeting */}
@@ -353,10 +336,8 @@ export function Dashboard({ user, accessToken, onGoToMarketplace, onGoToFrugalit
         <p className="text-xs font-medium text-blue-200 uppercase tracking-wider mb-3">Быстрые действия</p>
         <div className="grid grid-cols-2 gap-2.5">
           {[
-            { icon: MapPin,     label: 'Найти мойку',  sub: 'Рядом с вами',         action: onGoToLocations },
-            { icon: Clock,      label: 'История',       sub: 'Мои мойки',            action: onGoToHistory },
-            { icon: TrendingUp, label: 'Индекс ухода', sub: 'Бережливость',         action: onGoToFrugality },
-            { icon: Award,      label: 'Баллы',         sub: `${loyaltyPoints} pts`, action: onGoToLoyalty },
+            { icon: MapPin, label: 'Найти мойку', sub: 'Рядом с вами', action: onGoToLocations },
+            { icon: Clock,  label: 'История',      sub: 'Мои мойки',    action: onGoToHistory },
           ].map(({ icon: Icon, label, sub, action }, i) => (
             <motion.button
               key={label}
@@ -372,72 +353,6 @@ export function Dashboard({ user, accessToken, onGoToMarketplace, onGoToFrugalit
               <Icon className="w-5 h-5 mb-2.5 text-blue-200" />
               <p className="text-sm font-semibold text-white leading-tight">{label}</p>
               <p className="text-[11px] text-blue-300 mt-0.5">{sub}</p>
-            </motion.button>
-          ))}
-        </div>
-      </motion.section>
-
-      {/* ── FRUGALITY INDEX TEASER ──────────────────────────────────────── */}
-      <motion.section
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.42, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-        className="px-5 mb-4"
-      >
-        <motion.button
-          onClick={onGoToFrugality}
-          whileTap={{ scale: 0.97 }}
-          className="w-full flex items-center gap-4 bg-indigo-600/80 border border-indigo-500/30 rounded-2xl p-5 text-left hover:bg-indigo-600/90 transition-all"
-        >
-          <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Shield className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] text-indigo-300 font-medium uppercase tracking-wider mb-1">Индекс Бережливости</p>
-            <p className="text-sm font-semibold text-white leading-snug">Верифицированная история ухода</p>
-            <p className="text-indigo-300 text-xs mt-0.5">Повысьте стоимость авто при продаже</p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-white/40 flex-shrink-0" />
-        </motion.button>
-      </motion.section>
-
-      {/* ── MARKETPLACE SHORTCUT ────────────────────────────────────────── */}
-      <motion.section
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.46, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-        className="px-5"
-      >
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-medium text-blue-200 uppercase tracking-wider">Сервисы</p>
-          <button
-            onClick={onGoToMarketplace}
-            className="text-blue-200 text-xs font-medium hover:text-white transition-colors"
-          >
-            Все →
-          </button>
-        </div>
-        <div className="grid grid-cols-3 gap-2.5">
-          {[
-            { icon: Wrench,   name: 'Шиномонтаж', price: '80 000',  color: 'text-orange-300', bg: 'bg-orange-500/20' },
-            { icon: Sparkles, name: 'Детейлинг',  price: '120 000', color: 'text-blue-300',   bg: 'bg-blue-500/20' },
-            { icon: Droplets, name: 'Ceramic Pro', price: '800 000', color: 'text-purple-300', bg: 'bg-purple-500/20' },
-          ].map((s, i) => (
-            <motion.button
-              key={s.name}
-              onClick={onGoToMarketplace}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.48 + i * 0.07, duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              whileTap={{ scale: 0.93 }}
-              className="flex flex-col items-center rounded-xl p-3.5 hover:bg-white/15 transition-colors"
-              style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}
-            >
-              <div className={`w-9 h-9 ${s.bg} rounded-xl flex items-center justify-center mb-2.5`}>
-                <s.icon className={`w-4.5 h-4.5 ${s.color}`} />
-              </div>
-              <p className="text-[12px] text-white font-semibold text-center leading-tight">{s.name}</p>
-              <p className="text-[11px] text-blue-300 mt-1">{s.price} сум</p>
             </motion.button>
           ))}
         </div>

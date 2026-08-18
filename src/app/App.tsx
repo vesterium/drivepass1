@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { registerBackButton, hapticTap, onAppResume } from './core/native/capacitor';
 import { nativeStorage } from './core/native/storage';
-import { Home, MapPin, QrCode, User, Sparkles } from 'lucide-react';
+import { Home, MapPin, QrCode, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner';
@@ -18,11 +18,6 @@ import { PartnerDashboard } from './components/PartnerDashboard';
 import { Onboarding } from './components/Onboarding';
 import { Auth } from './components/Auth';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import { Loyalty } from './components/Loyalty';
-import { FrugalityIndex } from './components/FrugalityIndex';
-import { Certificate } from './components/Certificate';
-import { Marketplace } from './components/Marketplace';
-import { BookingFlow } from './components/BookingFlow';
 import { InstallPrompt } from './components/InstallPrompt';
 import { LaunchChecklist } from './components/LaunchChecklist';
 import { LaunchControlCenter } from './components/LaunchControlCenter';
@@ -32,15 +27,14 @@ import { DrivePassLogo } from './components/DrivePassLogo';
 import { NetworkBanner } from './components/NetworkBanner';
 import { ErrorBoundary } from './core/errors/ErrorBoundary';
 import { SUB_VIEWS } from './core/types';
-import type { ClientView, BookingContext, Role } from './core/types';
+import type { ClientView, Role } from './core/types';
 
 // Nav items config
 const NAV_ITEMS = [
-  { id: 'dashboard',   icon: Home,      labelKey: 'nav.home' },
-  { id: 'locations',   icon: MapPin,    labelKey: 'nav.locations' },
-  { id: 'scanner',     icon: QrCode,    labelKey: 'QR',           isCenter: true },
-  { id: 'marketplace', icon: Sparkles,  labelKey: 'nav.services' },
-  { id: 'profile',     icon: User,      labelKey: 'nav.profile' },
+  { id: 'dashboard', icon: Home,   labelKey: 'nav.home' },
+  { id: 'locations', icon: MapPin, labelKey: 'nav.locations' },
+  { id: 'scanner',   icon: QrCode, labelKey: 'QR', isCenter: true },
+  { id: 'profile',   icon: User,   labelKey: 'nav.profile' },
 ] as const;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -81,7 +75,6 @@ function AppContent() {
     setCurrentView(view);
   }, [currentView]);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [bookingCtx, setBookingCtx] = useState<BookingContext>({});
   const [showLaunchChecklist, setShowLaunchChecklist] = useState(false);
   const [storageReady, setStorageReady] = useState(false);
 
@@ -160,10 +153,6 @@ function AppContent() {
     toast.success('Вы вышли из системы');
   };
 
-  const goToBooking = (locationId?: string, locationName?: string) => {
-    setBookingCtx({ locationId, locationName });
-    setCurrentView('booking');
-  };
 
   // ── Render guards ──────────────────────────────────────────────────────────
 
@@ -228,21 +217,13 @@ function AppContent() {
           <Dashboard
             user={user}
             accessToken={accessToken}
-            onGoToMarketplace={() => setCurrentView('marketplace')}
-            onGoToFrugality={() => setCurrentView('frugality')}
             onGoToLocations={() => setCurrentView('locations')}
             onGoToHistory={() => setCurrentView('history')}
-            onGoToLoyalty={() => setCurrentView('loyalty')}
             onGoToLoadBalancer={() => setCurrentView('loadbalancer')}
           />
         );
       case 'locations':
-        return (
-          <Locations
-            accessToken={accessToken}
-            onBook={(id, name) => goToBooking(id, name)}
-          />
-        );
+        return <Locations accessToken={accessToken} />;
       case 'scanner':
         return <Scanner accessToken={accessToken} />;
       case 'profile':
@@ -250,59 +231,14 @@ function AppContent() {
           <Profile
             user={user}
             onViewHistory={() => setCurrentView('history')}
-            onViewLoyalty={() => setCurrentView('loyalty')}
-            onViewFrugality={() => setCurrentView('frugality')}
             onSignOut={handleSignOut}
             onShowLaunchChecklist={() => setShowLaunchChecklist(true)}
           />
         );
       case 'history':
         return <WashHistory onBack={() => setCurrentView('profile')} accessToken={accessToken} />;
-      case 'loyalty':
-        return <Loyalty accessToken={accessToken!} onBack={() => setCurrentView('profile')} />;
-      case 'frugality':
-        return (
-          <FrugalityIndex
-            accessToken={accessToken!}
-            user={user}
-            onBack={() => setCurrentView('profile')}
-            onViewCertificate={() => setCurrentView('certificate')}
-          />
-        );
-      case 'certificate':
-        return (
-          <Certificate
-            accessToken={accessToken!}
-            user={user}
-            onBack={() => setCurrentView('frugality')}
-          />
-        );
-      case 'marketplace':
-        return (
-          <Marketplace
-            accessToken={accessToken!}
-            user={user}
-            onBack={() => setCurrentView('dashboard')}
-            onBook={(locId, locName) => goToBooking(locId, locName)}
-          />
-        );
       case 'loadbalancer':
-        return (
-          <SmartLoadBalancer
-            onNavigate={(id, name) => goToBooking(id, name)}
-            onBack={() => setCurrentView('dashboard')}
-          />
-        );
-      case 'booking':
-        return (
-          <BookingFlow
-            accessToken={accessToken!}
-            user={user}
-            initialLocationId={bookingCtx.locationId}
-            initialLocationName={bookingCtx.locationName}
-            onBack={() => setCurrentView('locations')}
-          />
-        );
+        return <SmartLoadBalancer onBack={() => setCurrentView('dashboard')} />;
       default:
         return <Dashboard user={user} accessToken={accessToken} />;
     }

@@ -16,7 +16,6 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import { useAuth } from '../contexts/AuthContext';
 import { PRICING_PACKAGES } from '../constants/pricing';
 import { SubscriptionModal } from './SubscriptionModal';
-import { ManageSubscriptionModal } from './ManageSubscriptionModal';
 
 // ── Slim iOS-style toggle ──────────────────────────────────────────────────
 function SlimToggle({ value, onChange, disabled }: { value: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
@@ -53,32 +52,20 @@ function SlimToggle({ value, onChange, disabled }: { value: boolean; onChange: (
 interface ProfileProps {
   user?: any;
   onViewHistory: () => void;
-  onViewLoyalty?: () => void;
-  onViewFrugality?: () => void;
   onSignOut?: () => void;
   onShowLaunchChecklist?: () => void;
 }
 
-export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, onSignOut, onShowLaunchChecklist }: ProfileProps) {
+export function Profile({ user, onViewHistory, onSignOut, onShowLaunchChecklist }: ProfileProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
-  const [showManageModal, setShowManageModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showAppSettingsModal, setShowAppSettingsModal] = useState(false);
   const [showBillingModal, setShowBillingModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
-  const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false);
   const [showSubModal, setShowSubModal] = useState(false);
   const [subInitialTier, setSubInitialTier] = useState<'personal' | 'business'>('personal');
-
-  // Payment method preference (persisted)
-  const [paymentMethod, setPaymentMethod] = useState<'payme' | 'click'>('payme');
-  useEffect(() => {
-    nativeStorage.getItem('drivepass_payment_method').then(v => {
-      if (v === 'payme' || v === 'click') setPaymentMethod(v);
-    });
-  }, []);
 
   // Notification settings
   const [notifWash, setNotifWash] = useState(true);
@@ -225,34 +212,14 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
                     {priceUzs} <span className="font-normal text-gray-400 text-xs">сум</span>
                   </span>
                 </div>
-                {/* Payment method row — clickable */}
-                <button
-                  onClick={() => setShowPaymentMethodModal(true)}
-                  className="w-full flex items-center justify-between py-3 hover:opacity-70 transition-opacity"
-                >
+                {/* Payment method — server-decided (manual card transfer), not user-editable */}
+                <div className="w-full flex items-center justify-between py-3">
                   <span className="text-gray-400 text-sm">Способ оплаты</span>
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className="text-xs font-bold px-2 py-0.5 rounded-full"
-                      style={paymentMethod === 'payme'
-                        ? { background: '#eff6ff', color: '#1d4ed8' }
-                        : { background: '#f0fdf4', color: '#15803d' }
-                      }
-                    >
-                      {paymentMethod === 'payme' ? 'Payme' : 'Click'}
-                    </span>
-                    <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-                  </div>
-                </button>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: '#eff6ff', color: '#1d4ed8' }}>
+                    Банковская карта
+                  </span>
+                </div>
               </div>
-
-              <button
-                onClick={() => setShowManageModal(true)}
-                className="w-full mt-4 py-3.5 rounded-2xl text-white text-sm font-bold transition-all active:scale-95"
-                style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5)', boxShadow: '0 4px 16px rgba(37,99,235,0.35)' }}
-              >
-                {t('profile.manageSubscription')}
-              </button>
             </div>
           ) : (
             <div className="px-5 pb-5 pt-6">
@@ -300,20 +267,11 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
                 ))}
               </div>
 
-              {/* Payment method */}
-              <button
-                onClick={() => setShowPaymentMethodModal(true)}
-                className="w-full flex items-center justify-between py-3.5 transition-colors"
-                style={{ borderBottom: '1px solid #f3f4f6' }}
-              >
+              {/* Payment method — server-decided (manual card transfer), not user-editable */}
+              <div className="w-full flex items-center justify-between py-3.5" style={{ borderBottom: '1px solid #f3f4f6' }}>
                 <span className="text-sm text-gray-500">Способ оплаты</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-semibold" style={{ color: paymentMethod === 'payme' ? '#2563eb' : '#16a34a' }}>
-                    {paymentMethod === 'payme' ? 'Payme' : 'Click'}
-                  </span>
-                  <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-                </div>
-              </button>
+                <span className="text-sm font-semibold" style={{ color: '#2563eb' }}>Банковская карта</span>
+              </div>
 
               {/* CTA */}
               <div className="pt-4">
@@ -336,7 +294,7 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
         <p className="text-[10px] text-gray-400 uppercase tracking-[0.14em] font-bold mb-2.5 px-1">{t('profile.account')}</p>
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
           <ProfileRow icon={<Phone className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title="Telegram ID" value={user?.tg_id ?? '—'} />
-          <ProfileRow icon={<Car className="w-4 h-4 text-emerald-500" />} iconBg="bg-emerald-50" title={t('profile.carNumber')} value={<span className="font-mono font-bold text-sm">{carNumber}</span>} onPress={() => setShowManageModal(true)} />
+          <ProfileRow icon={<Car className="w-4 h-4 text-emerald-500" />} iconBg="bg-emerald-50" title={t('profile.carNumber')} value={<span className="font-mono font-bold text-sm">{carNumber}</span>} />
           <ProfileRow icon={<CreditCard className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title={t('profile.paymentMethod')} value="Банковская карта" />
         </div>
       </div>
@@ -366,7 +324,7 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
           </button>
 
-          <button onClick={() => setShowAppSettingsModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors border-b border-gray-50">
+          <button onClick={() => setShowAppSettingsModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors">
             <div className="w-8 h-8 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
               <Settings className="w-4 h-4 text-purple-500" />
             </div>
@@ -374,30 +332,6 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
               <p className="text-gray-900 text-sm font-semibold">{t('profile.appSettings')}</p>
             </div>
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-          </button>
-
-          <button onClick={onViewLoyalty} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors border-b border-gray-50">
-            <div className="w-8 h-8 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Award className="w-4 h-4 text-amber-500" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-gray-900 text-sm font-semibold">{t('profile.rewardsProgram')}</p>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-          </button>
-
-          <button onClick={onViewFrugality} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors">
-            <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <TrendingUp className="w-4 h-4 text-indigo-500" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-gray-900 text-sm font-semibold">Индекс Бережливости</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">История ухода и сертификат</p>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="bg-indigo-100 text-indigo-600 text-[9px] px-1.5 py-0.5 rounded-full font-bold">NEW</span>
-              <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-            </div>
           </button>
         </div>
       </div>
@@ -479,17 +413,6 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
         </button>
       </div>
 
-      {/* ── Manage Subscription Modal ── */}
-      {showManageModal && accessToken && (
-        <ManageSubscriptionModal
-          accessToken={accessToken}
-          user={user}
-          subscription={subscription}
-          onClose={() => setShowManageModal(false)}
-          onUpdated={() => { refreshSub(); setShowManageModal(false); }}
-        />
-      )}
-
       {/* ── Cancel Modal ───────────────────────────────────────────── */}
       {createPortal(
         <AnimatePresence>
@@ -507,12 +430,11 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl"
               >
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{t('profile.cancelSubscription')}?</h3>
-                <p className="text-gray-500 text-sm mb-6 leading-relaxed">{t('profile.cancelConfirmText')}</p>
-                <div className="flex gap-3">
-                  <button onClick={() => setShowCancelModal(false)} className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl hover:bg-gray-200 transition-colors font-semibold text-sm">{t('profile.keepBtn')}</button>
-                  <button onClick={() => setShowCancelModal(false)} className="flex-1 bg-red-600 text-white py-3 rounded-xl hover:bg-red-700 transition-colors font-semibold text-sm">{t('profile.cancelBtn')}</button>
-                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t('profile.cancelSubscription')}</h3>
+                <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                  Отмена подписки пока обрабатывается вручную — напишите об этом в @DrivePass_bot, и её отключат.
+                </p>
+                <button onClick={() => setShowCancelModal(false)} className="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 transition-colors font-semibold text-sm">Понятно</button>
               </motion.div>
             </motion.div>
           )}
@@ -779,57 +701,6 @@ export function Profile({ user, onViewHistory, onViewLoyalty, onViewFrugality, o
           </div>
         </div>
       </ModalPortal>
-
-      {/* ── Payment Method Modal ──────────────────────────────────── */}
-      {createPortal(
-        <AnimatePresence>
-          {showPaymentMethodModal && (
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed flex items-end justify-center z-[9999]"
-              style={{ top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(3px)' }}
-              onClick={e => { if (e.target === e.currentTarget) setShowPaymentMethodModal(false); }}
-            >
-              <motion.div
-                initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-                className="bg-white rounded-t-3xl w-full max-w-md pb-8 pt-5 px-5"
-                style={{ boxShadow: '0 -8px 32px rgba(0,0,0,0.12)' }}
-              >
-                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
-                <h3 className="text-lg font-black text-gray-900 mb-1">Способ оплаты</h3>
-                <p className="text-xs text-gray-400 mb-5">Выберите платёжную систему для продления</p>
-                <div className="space-y-3">
-                  {[
-                    { id: 'payme' as const, name: 'Payme', desc: 'Через Payme · карты Visa, Mastercard, Uzcard', emoji: '🔵', accent: '#1d4ed8', bg: '#eff6ff' },
-                    { id: 'click' as const, name: 'Click', desc: 'Через Click · быстрая оплата в приложении', emoji: '🟢', accent: '#15803d', bg: '#f0fdf4' },
-                  ].map(pm => (
-                    <motion.button key={pm.id} whileTap={{ scale: 0.97 }}
-                      onClick={() => { setPaymentMethod(pm.id); nativeStorage.setItem('drivepass_payment_method', pm.id).catch(() => {}); setShowPaymentMethodModal(false); toast.success(`Способ оплаты: ${pm.name}`); }}
-                      className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all"
-                      style={{ background: paymentMethod === pm.id ? pm.bg : '#fafafa', border: `2px solid ${paymentMethod === pm.id ? pm.accent + '40' : '#f0f0f0'}` }}>
-                      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 text-xl" style={{ background: pm.bg }}>{pm.emoji}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-900 text-sm">{pm.name}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{pm.desc}</p>
-                      </div>
-                      {paymentMethod === pm.id && (
-                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: pm.accent }}>
-                          <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                        </div>
-                      )}
-                    </motion.button>
-                  ))}
-                </div>
-                <button onClick={() => setShowPaymentMethodModal(false)} className="w-full mt-4 py-3 text-gray-400 text-sm font-medium hover:bg-gray-50 rounded-xl transition-colors">
-                  Отмена
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
 
       {/* ── Subscription Modal ────────────────────────────────────── */}
       {showSubModal && accessToken && (

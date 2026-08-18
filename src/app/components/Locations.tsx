@@ -7,13 +7,8 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { YandexMap, type CarWashMarker } from './YandexMap';
-import { projectId } from '../utils/supabase/info';
-import { toast } from 'sonner';
-import { apiHeaders } from '../utils/apiClient';
-import {
-  ALL_CAR_WASHES, CAR_WASHES_BY_CITY, CITY_CENTERS,
-  TOTAL_PARTNER_WASHES, type CarWashLocation,
-} from '../constants/carWashes';
+import { apiHeaders, apiUrl } from '../utils/apiClient';
+import type { CarWashLocation } from '../core/types';
 
 // ─── Highlight matching substring ───────────────────────────────────────────
 function HighlightMatch({ text, query }: { text: string; query: string }) {
@@ -79,39 +74,22 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
   const [filterGreen, setFilterGreen] = useState(false);
   const [serviceFilter, setServiceFilter] = useState('Все');
   const [cityFilter, setCityFilter] = useState('Все');
-  const [occupancy, setOccupancy] = useState<OccupancyMap>({});
+  const [occupancy] = useState<OccupancyMap>({});
   const [showFilters, setShowFilters] = useState(false);
-
-  const API = `https://${projectId}.supabase.co/functions/v1/make-server-80c25f01`;
+  const [washes, setWashes] = useState<CarWashLocation[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch real-time occupancy (graceful degradation if backend not ready)
-    const fetchOccupancy = async () => {
-      try {
-        const response = await fetch(`${API}/occupancy`, {
-          headers: apiHeaders(accessToken || null),
-          signal: AbortSignal.timeout(5000), // 5s timeout
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.occupancy) setOccupancy(data.occupancy);
-        }
-      } catch (err) {
-        // Silently fail — occupancy is optional feature
-        console.log('[Locations] Occupancy unavailable:', err);
-      }
-    };
-
-    fetchOccupancy();
-
-    // Refresh every 2 minutes
-    const interval = setInterval(fetchOccupancy, 120000);
-    return () => clearInterval(interval);
+    fetch(apiUrl('/locations'), { headers: apiHeaders(accessToken) })
+      .then(r => r.ok ? r.json() : [])
+      .then((data: CarWashLocation[]) => setWashes(data))
+      .catch(() => setWashes([]))
+      .finally(() => setLoading(false));
   }, [accessToken]);
 
   const baseWashes = cityFilter === 'Все'
-    ? ALL_CAR_WASHES
-    : (CAR_WASHES_BY_CITY[cityFilter] ?? ALL_CAR_WASHES);
+    ? washes
+    : washes.filter(w => w.city === cityFilter);
 
   const filtered = baseWashes.filter(w => {
     const q = searchQuery.toLowerCase();
@@ -126,7 +104,7 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
 
   const mapMarkers = filtered.map(toMarker);
 
-  const selectedWash = ALL_CAR_WASHES.find(w => w.id === selectedId) || null;
+  const selectedWash = washes.find(w => w.id === selectedId) || null;
 
   const handleSelectWash = (id: string) => {
     setSelectedId(prev => prev === id ? null : id);
@@ -139,7 +117,7 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
         <div className="flex items-center justify-between mb-2.5">
           <h1 className="text-base font-bold tracking-tight">Автомойки Узбекистана</h1>
           <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">
-            {TOTAL_PARTNER_WASHES} партнёров
+            {washes.length} партнёров
           </span>
         </div>
 
@@ -352,7 +330,13 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
         </div>
 
         <AnimatePresence mode="popLayout">
-          {filtered.length === 0 && (
+          {loading && (
+            <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-center py-12">
+              <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3 animate-pulse" />
+              <p className="text-gray-400 text-sm">Загружаем мойки…</p>
+            </motion.div>
+          )}
+          {!loading && filtered.length === 0 && (
             <motion.div
               key="empty"
               initial={{ opacity: 0, y: 16 }}
@@ -362,8 +346,8 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
               className="text-center py-12"
             >
               <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">Ничего не найдено</p>
-              <p className="text-gray-400 text-sm mt-1">Попробуйте другой запрос</p>
+              <p className="text-gray-500">{washes.length === 0 ? 'Пока нет партнёрских моек' : 'Ничего не найдено'}</p>
+              <p className="text-gray-400 text-sm mt-1">{washes.length === 0 ? 'Загляните позже' : 'Попробуйте другой запрос'}</p>
             </motion.div>
           )}
         </AnimatePresence>
