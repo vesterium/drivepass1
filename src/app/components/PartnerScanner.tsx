@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import jsQR from 'jsqr';
 import { apiHeaders, apiUrl } from '../utils/apiClient';
 import { requestCameraPermission, getCurrentPosition, hapticSuccess, hapticError } from '../core/native/capacitor';
+import { canUseNativeQrScan, scanQrNative, closeNativeQrScan } from '../core/native/telegram';
 
 interface PartnerScannerProps {
   accessToken: string;
@@ -49,6 +50,7 @@ export function PartnerScanner({ accessToken }: PartnerScannerProps) {
     if (scanLoopRef.current) { cancelAnimationFrame(scanLoopRef.current); scanLoopRef.current = null; }
     if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
     if (videoRef.current) videoRef.current.srcObject = null;
+    closeNativeQrScan();
   }, []);
 
   useEffect(() => () => stopCamera(), [stopCamera]);
@@ -95,6 +97,16 @@ export function PartnerScanner({ accessToken }: PartnerScannerProps) {
   const startCamera = async () => {
     setCameraError(null);
     lastTokenRef.current = '';
+
+    // Inside Telegram's Mini App, hand scanning off to Telegram's own native camera
+    // overlay instead of opening a web getUserMedia() stream -- more reliable across
+    // platforms than a raw web camera inside the in-app WebView, and it's how a
+    // "real" QR scanner is expected to feel when opened straight from the bot.
+    if (canUseNativeQrScan()) {
+      setState('scanning');
+      scanQrNative(validateQR, 'Наведите на QR-код клиента');
+      return;
+    }
 
     // Request native camera permission before opening stream
     const granted = await requestCameraPermission();

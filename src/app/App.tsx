@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { registerBackButton, hapticTap, onAppResume } from './core/native/capacitor';
+import { initTelegramMiniApp } from './core/native/telegram';
 import { nativeStorage } from './core/native/storage';
 import { Home, MapPin, QrCode, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -76,6 +77,12 @@ function AppContent() {
 
   // ── Выбранная роль на WelcomeScreen ─────────────────────────────────────
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+
+  // Tell Telegram the Mini App is ready and let it expand to full height -- a no-op
+  // when the PWA is opened outside Telegram.
+  useEffect(() => {
+    initTelegramMiniApp();
+  }, []);
 
   // Hydrate persisted app state from native storage on mount
   useEffect(() => {
