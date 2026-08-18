@@ -26,6 +26,7 @@ import {
 } from 'react';
 import { nativeStorage } from '../core/native/storage';
 import { apiHeaders, apiUrl } from '../utils/apiClient';
+import { isTelegramMiniApp, getTelegramInitData } from '../core/native/telegram';
 import type { TelegramAuthPayload } from '../components/TelegramLoginButton';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -173,9 +174,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await clearSession();
   }, [clearSession]);
 
+  // Telegram Mini App launch already hands us a signed identity via initData -- skip the
+  // deep-link-and-confirm screen entirely and log straight in with it. Only tried when
+  // there's no stored session yet (a returning user's saved token is still validated the
+  // normal way via refreshSession, no need to re-verify initData on every launch).
+  const tryTelegramMiniAppLogin = useCallback(async (): Promise<boolean> => {
+    const initData = getTelegramInitData();
+    if (!initData) return false;
+    try {
+      const res = await fetch(apiUrl('/auth/telegram/webapp'), {
+        method: 'POST',
+        headers: apiHeaders(null),
+        body: JSON.stringify({ initData }),
+      });
+      if (!res.ok) return false;
+      const body = (await res.json()) as {
+        access_token: string;
+        user: AuthUser | null;
+        partnerAdmin: PartnerAdminIdentity | null;
+      };
+      await completeLogin(body.access_token, body.user ?? undefined, body.partnerAdmin ?? undefined);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [completeLogin]);
+
   useEffect(() => {
-    refreshSession();
-  }, [refreshSession]);
+    (async () => {
+      const existingToken = await nativeStorage.getItem(TOKEN_KEY);
+      if (!existingToken && isTelegramMiniApp()) {
+        if (await tryTelegramMiniAppLogin()) return;
+      }
+      await refreshSession();
+    })();
+  }, [refreshSession, tryTelegramMiniAppLogin]);
 
   return (
     <AuthContext.Provider

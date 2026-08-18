@@ -21,6 +21,10 @@ declare global {
 
 export const isTelegramMiniApp = (): boolean => !!window.Telegram?.WebApp?.initData;
 
+// The raw initData string, signed by whichever bot's menu button launched this page --
+// POST it as-is to /auth/telegram/webapp, which verifies the signature server-side.
+export const getTelegramInitData = (): string | null => window.Telegram?.WebApp?.initData || null;
+
 export function initTelegramMiniApp(): void {
   const webApp = window.Telegram?.WebApp;
   if (!webApp?.initData) return;
