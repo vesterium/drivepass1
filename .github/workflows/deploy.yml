@@ -24,7 +24,7 @@ jobs:
 
       - name: Deploy over rsync
         env:
-          DEPLOY_KEY_B64: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
+          DEPLOY_KEY_B64: ${{ secrets.DEPLOY_SSH_B64 }}
         run: |
           mkdir -p ~/.ssh
           echo "$DEPLOY_KEY_B64" | base64 -d > ~/.ssh/deploy_key
