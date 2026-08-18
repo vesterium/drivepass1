@@ -158,7 +158,7 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <DrivePassLogo size={56} animated={false} showText />
+          <DrivePassLogo size={56} showText />
           <div className="flex items-center justify-center gap-1.5 mt-2">
             {[0, 1, 2].map(i => (
               <div

@@ -117,7 +117,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         className="flex justify-between items-center p-6"
       >
         <div className="flex items-center gap-2">
-          <DrivePassLogo size={28} animated={false} />
+          <DrivePassLogo size={28} />
           <span className="text-xl text-gray-900">{BRAND.name}</span>
         </div>
         <motion.button

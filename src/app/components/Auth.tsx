@@ -143,7 +143,7 @@ export function Auth({ role, onBack }: { role?: 'client' | 'partner' | null; onB
               transition={{ delay: 0.1, duration: 0.36, ease: 'backOut' }}
               className="flex items-center justify-center mb-2"
             >
-              <DrivePassLogo size={44} animated={false} />
+              <DrivePassLogo size={44} />
             </motion.div>
             <CardTitle className="text-2xl font-bold">DrivePass+</CardTitle>
             {role && (

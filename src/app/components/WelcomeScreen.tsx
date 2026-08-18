@@ -244,7 +244,7 @@ export function WelcomeScreen({ onSelectRole }: WelcomeScreenProps) {
           transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
           className="relative inline-flex mb-5"
         >
-          <DrivePassLogo size={72} animated={false} />
+          <DrivePassLogo size={72} />
         </motion.div>
 
         <motion.h1
