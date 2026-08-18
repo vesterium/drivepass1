@@ -1,0 +1,33 @@
+name: Deploy PWA
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Build
+        env:
+          VITE_API_BASE_URL: https://api.drivepassplus.app/api/v1
+          VITE_TELEGRAM_BOT_USERNAME: DrivePass_bot
+        run: npm run build
+
+      - name: Deploy over SSH
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete
+          path: dist/
+          remote_path: /opt/drivepass-pwa/
+          remote_host: 62.238.98.200
+          remote_user: root
+          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
