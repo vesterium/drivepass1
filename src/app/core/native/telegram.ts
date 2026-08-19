@@ -31,12 +31,21 @@ export function initTelegramMiniApp(): void {
   const webApp = window.Telegram?.WebApp;
   if (!webApp?.initData) return;
   webApp.ready();
-  webApp.expand();
-  // The Desktop Telegram client leaves the strip around the Mini App white by default
-  // until told otherwise -- match it to our own brand color so it never shows through
-  // as a stray white sliver against the app's content.
-  try { webApp.setHeaderColor?.('#2563EB'); } catch {}
-  try { webApp.setBackgroundColor?.('#2563EB'); } catch {}
+
+  // Deferred by two animation frames: calling expand() synchronously on mount asks
+  // Telegram Desktop to resize its window around a page that hasn't painted its first
+  // real layout yet, and it has been seen to size the surrounding frame off that
+  // premature snapshot -- leaving a persistent gap next to the (correctly sized, but
+  // now too-small-for-the-frame) WebView that no in-page CSS can reach because it's
+  // outside the WebView's own bounds. Waiting for two frames guarantees at least one
+  // full layout+paint pass has happened before Telegram measures anything.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      webApp.expand();
+      try { webApp.setHeaderColor?.('#2563EB'); } catch {}
+      try { webApp.setBackgroundColor?.('#2563EB'); } catch {}
+    });
+  });
 }
 
 // showScanQrPopup shipped in Bot API 6.4 -- older Telegram clients won't have it even
