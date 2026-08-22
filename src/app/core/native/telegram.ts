@@ -11,6 +11,7 @@ interface TelegramWebApp {
   closeScanQrPopup: () => void;
   ready: () => void;
   expand: () => void;
+  requestFullscreen?: () => void;
   setHeaderColor?: (color: string) => void;
   setBackgroundColor?: (color: string) => void;
 }
@@ -42,6 +43,12 @@ export function initTelegramMiniApp(): void {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       webApp.expand();
+      // True fullscreen (Bot API 8.0+) drops Telegram's own header/footer chrome around
+      // the WebView entirely -- expand() alone only grows the app within that chrome.
+      // Older clients simply don't have the method, hence the guard.
+      if (webApp.isVersionAtLeast('8.0')) {
+        try { webApp.requestFullscreen?.(); } catch {}
+      }
       try { webApp.setHeaderColor?.('#2563EB'); } catch {}
       try { webApp.setBackgroundColor?.('#2563EB'); } catch {}
     });
