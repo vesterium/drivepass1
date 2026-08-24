@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  Car, TrendingUp, Shield, CreditCard, Award, MapPin,
+  Car, TrendingUp, CreditCard, MapPin,
   Clock, QrCode, Timer, ChevronRight, Zap,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -68,7 +68,6 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory }:
             </div>
             <div>
               <p className="text-sm font-bold tracking-tight leading-none">{BRAND.name}</p>
-              <p className="text-[11px] text-blue-200 mt-0.5">{BRAND.slogan}</p>
             </div>
           </div>
         </div>
@@ -95,26 +94,6 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory }:
           )}
         </motion.div>
 
-        {/* Trust strip */}
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { icon: Shield,     color: 'text-green-300',  label: 'Проверено' },
-            { icon: CreditCard, color: 'text-blue-300',   label: 'Payme / Click' },
-            { icon: Award,      color: 'text-yellow-300', label: 'Гарантия' },
-          ].map(({ icon: Icon, color, label }, i) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.18 + i * 0.07, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="bg-white/10 border border-white/10 rounded-xl p-2.5 flex flex-col items-center gap-1.5"
-              style={{ backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}
-            >
-              <Icon className={`w-4 h-4 ${color}`} />
-              <p className="text-[11px] text-blue-100 font-medium">{label}</p>
-            </motion.div>
-          ))}
-        </div>
       </motion.header>
 
       {/* ── QR SECTION ──────────────────────────────────────────────────── */}
