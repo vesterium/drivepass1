@@ -76,6 +76,7 @@ export interface CarWashLocation {
   distanceKm: number;
   services: string[];
   boxesTotal: number;
+  selfService: boolean;
 }
 
 // ── Wash / Anti-fraud ───────────────────────────────────────────

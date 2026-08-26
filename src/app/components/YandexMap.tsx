@@ -26,6 +26,7 @@ export interface CarWashMarker {
   hours?: string;
   distanceKm?: number;
   services?: string[];
+  selfService?: boolean;
 }
 
 interface Props {
@@ -45,9 +46,9 @@ const UZ_CENTER: [number, number] = [41.0, 64.5]; // center of Uzbekistan for "a
 // ─── Build custom SVG pin ─────────────────────────────────────────────
 function makePinSvg(wash: CarWashMarker, selected: boolean): string {
   const pinColor  = selected ? '#4f46e5' : wash.openNow ? '#2563eb' : '#6b7280';
-  const icon      = wash.hasGreenCorridor ? '★' : '●';
-  const iconSize  = wash.hasGreenCorridor ? 13 : 10;
-  const iconColor = wash.hasGreenCorridor ? '#16a34a' : pinColor;
+  const icon      = wash.hasGreenCorridor ? '★' : wash.selfService ? '⚙' : '●';
+  const iconSize  = wash.hasGreenCorridor || wash.selfService ? 13 : 10;
+  const iconColor = wash.hasGreenCorridor ? '#16a34a' : wash.selfService ? '#9333ea' : pinColor;
   const scale     = selected ? 1.3 : 1;
 
   return `

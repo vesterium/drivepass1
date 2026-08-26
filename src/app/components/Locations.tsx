@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import {
   MapPin, Navigation, Search, Star, Clock,
   Phone, ChevronRight, CheckCircle2, Wifi,
-  Users, Filter, Calendar, Zap, X
+  Users, Filter, Zap, X, Settings, Camera
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { YandexMap, type CarWashMarker } from './YandexMap';
+import { SelfServiceVisitModal } from './SelfServiceVisitModal';
 import { apiHeaders, apiUrl } from '../utils/apiClient';
 import type { CarWashLocation } from '../core/types';
 
@@ -36,7 +37,6 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 
 interface LocationsProps {
   accessToken?: string | null;
-  onBook?: (locationId: string, locationName: string) => void;
 }
 
 type OccupancyMap = Record<string, { percent: number; queueMin: number; status: string }>;
@@ -63,10 +63,11 @@ function toMarker(w: CarWashLocation): CarWashMarker {
     hours: w.hours,
     distanceKm: w.distanceKm,
     services: w.services,
+    selfService: w.selfService,
   };
 }
 
-export function Locations({ accessToken = null, onBook }: LocationsProps) {
+export function Locations({ accessToken = null }: LocationsProps) {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -78,6 +79,7 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [washes, setWashes] = useState<CarWashLocation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showSelfServiceModal, setShowSelfServiceModal] = useState(false);
 
   useEffect(() => {
     fetch(apiUrl('/locations'), { headers: apiHeaders(accessToken) })
@@ -238,6 +240,11 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
                     Green Lane
                   </span>
                 )}
+                {selectedWash.selfService && (
+                  <span className="bg-purple-400/30 text-purple-100 px-2 py-0.5 rounded-full text-[10px] flex-shrink-0">
+                    Самообслуживание
+                  </span>
+                )}
               </div>
               <p className="text-blue-200 text-xs mb-2">{selectedWash.address}</p>
               <div className="flex items-center gap-3 text-xs text-blue-100">
@@ -299,13 +306,13 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
               <Phone className="w-3.5 h-3.5" />
               Позвонить
             </a>
-            {onBook && (
+            {selectedWash.selfService && (
               <button
-                onClick={() => onBook(selectedWash.id, selectedWash.name)}
-                className="flex-1 bg-green-400/20 text-green-100 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-green-400/30 transition-colors"
+                onClick={() => setShowSelfServiceModal(true)}
+                className="flex-1 bg-purple-400/20 text-purple-100 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-purple-400/30 transition-colors"
               >
-                <Calendar className="w-3.5 h-3.5" />
-                Запись
+                <Camera className="w-3.5 h-3.5" />
+                Отметить мойку
               </button>
             )}
           </div>
@@ -515,6 +522,12 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
                           Green Lane
                         </span>
                       )}
+                      {wash.selfService && (
+                        <span className="flex items-center gap-1 text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
+                          <Settings className="w-3 h-3" />
+                          Самообслуживание
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -548,6 +561,15 @@ export function Locations({ accessToken = null, onBook }: LocationsProps) {
 
         <div className="h-6" />
       </div>
+
+      {showSelfServiceModal && selectedWash && (
+        <SelfServiceVisitModal
+          accessToken={accessToken}
+          partnerId={selectedWash.id}
+          partnerName={selectedWash.name}
+          onClose={() => setShowSelfServiceModal(false)}
+        />
+      )}
     </div>
   );
 }
