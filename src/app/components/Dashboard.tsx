@@ -61,16 +61,9 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory }:
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="pt-safe px-5 pb-5"
       >
-        {/* Brand row */}
-        <div className="flex items-center justify-between pt-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/15 border border-white/20 rounded-xl flex items-center justify-center">
-              <Car className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-bold tracking-tight leading-none">{BRAND.name}</p>
-            </div>
-          </div>
+        {/* Weather — the app's own logo/name is redundant here, user already knows
+            which app they're in (opened via its icon or the bot's own menu button) */}
+        <div className="flex items-center justify-end pt-4 mb-6">
           <WeatherWidget />
         </div>
 

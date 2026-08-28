@@ -1,8 +1,11 @@
 /**
  * DrivePassLogo — логотип DrivePass+
+ *
+ * Same asset as the app icon/favicon (public/icons/icon-512x512.png) -- the real logo the
+ * user provided, not the old placeholder that shipped with the original Figma scaffold.
  */
 
-import logoImg from 'figma:asset/d2a1e1755e3da144f861793ea86b3d5e07fd81b8.png';
+const logoImg = '/icons/icon-512x512.png';
 
 interface DrivePassLogoProps {
   size?: number;

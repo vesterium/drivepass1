@@ -575,6 +575,10 @@ export function Locations({ accessToken = null }: LocationsProps) {
 }
 
 // Build Yandex Maps navigation link for a specific car wash
-function buildYandexNavLink(lat: number, lng: number, name: string): string {
-  return `https://yandex.uz/maps/?rtext=~${lat},${lng}&rtt=auto&text=${encodeURIComponent(name)}`;
+// A trailing `text=<name>` param made Yandex trust the name-search over the actual
+// coordinates -- for a name like "Enigma" that also matches an unrelated place in Russia
+// (Yandex's primary market), it silently routed there instead. Coordinates alone are
+// enough for "route to this exact point" -- no name lookup needed.
+function buildYandexNavLink(lat: number, lng: number, _name: string): string {
+  return `https://yandex.uz/maps/?rtext=~${lat},${lng}&rtt=auto`;
 }

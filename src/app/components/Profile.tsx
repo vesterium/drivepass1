@@ -1,53 +1,20 @@
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { openUrl } from '../core/native/capacitor';
-import { nativeStorage } from '../core/native/storage';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ModalPortal } from './ModalPortal';
 import {
-  User, CreditCard, Bell, HelpCircle, LogOut, ChevronRight,
-  Phone, Calendar, Award, Receipt, Settings, Globe,
-  Car, Shield, TrendingUp, CheckCircle2, AlertCircle, Trophy,
-  X, ArrowRight, RefreshCw, Zap,
+  User, HelpCircle, LogOut, ChevronRight,
+  Calendar, Globe,
+  Car, Shield, TrendingUp, CheckCircle2, AlertCircle,
+  X,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useAuth } from '../contexts/AuthContext';
 import { PRICING_PACKAGES } from '../constants/pricing';
 import { SubscriptionModal } from './SubscriptionModal';
-
-// ── Slim iOS-style toggle ──────────────────────────────────────────────────
-function SlimToggle({ value, onChange, disabled }: { value: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
-  return (
-    <motion.button
-      type="button"
-      role="switch"
-      aria-checked={value}
-      disabled={disabled}
-      onClick={() => !disabled && onChange(!value)}
-      animate={{ backgroundColor: value ? '#2563eb' : '#d1d5db' }}
-      transition={{ duration: 0.22, ease: 'easeOut' }}
-      style={{
-        width: 42, height: 24, borderRadius: 12,
-        position: 'relative', flexShrink: 0,
-        opacity: disabled ? 0.4 : 1,
-        minHeight: 0, padding: 0, border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
-      }}
-    >
-      <motion.div
-        animate={{ x: value ? 20 : 2 }}
-        transition={{ type: 'spring', stiffness: 600, damping: 38, mass: 0.6 }}
-        style={{
-          position: 'absolute', top: 2,
-          width: 20, height: 20, borderRadius: 10,
-          background: '#fff',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.22)',
-        }}
-      />
-    </motion.button>
-  );
-}
 
 interface ProfileProps {
   user?: any;
@@ -58,24 +25,10 @@ interface ProfileProps {
 export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
-  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-  const [showAppSettingsModal, setShowAppSettingsModal] = useState(false);
-  const [showBillingModal, setShowBillingModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showSubModal, setShowSubModal] = useState(false);
   const [subInitialTier, setSubInitialTier] = useState<'personal' | 'business'>('personal');
-
-  // Notification settings
-  const [notifWash, setNotifWash] = useState(true);
-  const [notifPromo, setNotifPromo] = useState(true);
-  const [notifExpiry, setNotifExpiry] = useState(true);
-  const [notifNews, setNotifNews] = useState(false);
-
-  // App settings
-  const [hapticFeedback, setHapticFeedback] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [autoRefreshQR, setAutoRefreshQR] = useState(true);
 
   const { t, language, setLanguage } = useLanguage();
 
@@ -127,19 +80,21 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
           </div>
         </div>
 
-        {/* Stats row */}
-        <div className="relative grid grid-cols-3 gap-2">
+        {/* Stats row — real subscription data, not decoration */}
+        <div className="relative grid grid-cols-2 gap-2">
           {[
-            { value: '∞', label: t('profile.statWashes') },
-            { value: '24ч', label: t('profile.statCooldown') },
-            { value: null, label: 'DrivePass+', icon: <Trophy className="w-5 h-5 text-yellow-300 mx-auto mb-0.5" /> },
-          ].map(({ value, label, icon }) => (
+            {
+              value: hasActiveSubscription ? String(subscription!.washesLimit - subscription!.washesUsed) : '—',
+              label: t('profile.statWashes'),
+            },
+            { value: hasActiveSubscription ? '24ч' : '—', label: t('profile.statCooldown') },
+          ].map(({ value, label }) => (
             <div
               key={label}
               className="text-center py-3 px-2 rounded-2xl"
               style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
             >
-              {icon ?? <p className="text-lg font-black text-white mb-0.5">{value}</p>}
+              <p className="text-lg font-black text-white mb-0.5">{value}</p>
               <p className="text-[10px] text-blue-100 font-medium tracking-wide">{label}</p>
             </div>
           ))}
@@ -274,9 +229,7 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
       <div className="px-5 mb-4">
         <p className="text-[10px] text-gray-400 uppercase tracking-[0.14em] font-bold mb-2.5 px-1">{t('profile.account')}</p>
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-          <ProfileRow icon={<Phone className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title="Telegram ID" value={user?.tg_id ?? '—'} />
           <ProfileRow icon={<Car className="w-4 h-4 text-emerald-500" />} iconBg="bg-emerald-50" title={t('profile.carNumber')} value={<span className="font-mono font-bold text-sm">{carNumber}</span>} />
-          <ProfileRow icon={<CreditCard className="w-4 h-4 text-blue-500" />} iconBg="bg-blue-50" title={t('profile.paymentMethod')} value="Банковская карта" />
         </div>
       </div>
 
@@ -284,33 +237,13 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
       <div className="px-5 mb-4">
         <p className="text-[10px] text-gray-400 uppercase tracking-[0.14em] font-bold mb-2.5 px-1">{t('profile.preferences')}</p>
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-          <button onClick={() => setShowLanguageModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors border-b border-gray-50">
+          <button onClick={() => setShowLanguageModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors">
             <div className="w-8 h-8 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
               <Globe className="w-4 h-4 text-purple-500" />
             </div>
             <div className="flex-1 text-left">
               <p className="text-gray-900 text-sm font-semibold">{t('profile.language')}</p>
               <p className="text-xs text-gray-400 mt-0.5">{languages.find(l => l.code === language)?.nativeName}</p>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-          </button>
-
-          <button onClick={() => setShowNotificationsModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors border-b border-gray-50">
-            <div className="w-8 h-8 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Bell className="w-4 h-4 text-purple-500" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-gray-900 text-sm font-semibold">{t('profile.notifications')}</p>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-          </button>
-
-          <button onClick={() => setShowAppSettingsModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors">
-            <div className="w-8 h-8 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Settings className="w-4 h-4 text-purple-500" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-gray-900 text-sm font-semibold">{t('profile.appSettings')}</p>
             </div>
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
           </button>
@@ -321,21 +254,12 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
       <div className="px-5 mb-4">
         <p className="text-[10px] text-gray-400 uppercase tracking-[0.14em] font-bold mb-2.5 px-1">{t('profile.activity')}</p>
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-          <button onClick={onViewHistory} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors border-b border-gray-50">
+          <button onClick={onViewHistory} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors">
             <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0">
               <Calendar className="w-4 h-4 text-emerald-500" />
             </div>
             <div className="flex-1 text-left">
               <p className="text-gray-900 text-sm font-semibold">{t('profile.washHistory')}</p>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-          </button>
-          <button onClick={() => setShowBillingModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors">
-            <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Receipt className="w-4 h-4 text-emerald-500" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-gray-900 text-sm font-semibold">{t('profile.billingHistory')}</p>
             </div>
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
           </button>
@@ -371,13 +295,15 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
       {/* ── Actions ────────────────────────────────────────────────── */}
       <div className="px-5 pb-12">
         <div className="bg-white rounded-2xl overflow-hidden mb-3" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-          <button
-            onClick={() => setShowCancelModal(true)}
-            className="w-full flex items-center justify-center gap-2 text-red-400 py-4 hover:bg-red-50 transition-colors text-sm font-semibold border-b border-gray-50"
-          >
-            <AlertCircle className="w-4 h-4" />
-            {t('profile.cancelSubscription')}
-          </button>
+          {hasActiveSubscription && (
+            <button
+              onClick={() => setShowCancelModal(true)}
+              className="w-full flex items-center justify-center gap-2 text-red-400 py-4 hover:bg-red-50 transition-colors text-sm font-semibold border-b border-gray-50"
+            >
+              <AlertCircle className="w-4 h-4" />
+              {t('profile.cancelSubscription')}
+            </button>
+          )}
           <button
             onClick={onSignOut}
             className="w-full flex items-center justify-center gap-2 text-gray-400 py-4 hover:bg-gray-50 transition-colors text-sm font-semibold"
@@ -455,161 +381,6 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
         document.body
       )}
 
-      {/* ── Notifications Modal ───────────────────────────────────── */}
-      {createPortal(<AnimatePresence>
-        {showNotificationsModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed flex items-end justify-center z-[9999]"
-            style={{ top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(3px)' }}
-            onClick={e => { if (e.target === e.currentTarget) setShowNotificationsModal(false); }}
-          >
-            <motion.div
-              initial={{ y: 60, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 60, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 360, damping: 34 }}
-              className="bg-white rounded-t-3xl w-full max-w-md overflow-hidden shadow-2xl"
-            >
-              <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 bg-gray-200 rounded-full" /></div>
-              <div className="flex items-center justify-between px-5 pt-3 pb-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
-                <h3 className="text-base font-black text-gray-900">Уведомления</h3>
-                <motion.button whileTap={{ scale: 0.88 }} onClick={() => setShowNotificationsModal(false)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center" style={{ minHeight: 0 }}>
-                  <X className="w-4 h-4 text-gray-500" />
-                </motion.button>
-              </div>
-              <div className="px-5 py-2">
-                {[
-                  { label: 'Подтверждение мойки', sub: 'При каждой успешной мойке', val: notifWash, set: setNotifWash },
-                  { label: 'Акции и скидки', sub: 'Специальные предложения партнёров', val: notifPromo, set: setNotifPromo },
-                  { label: 'Истекает подписка', sub: 'За 3 дня до окончания', val: notifExpiry, set: setNotifExpiry },
-                  { label: 'Новости DrivePass+', sub: 'Обновления и новые функции', val: notifNews, set: setNotifNews },
-                ].map(({ label, sub, val, set }) => (
-                  <div key={label} className="flex items-center justify-between py-3.5" style={{ borderBottom: '1px solid #f9f9f9' }}>
-                    <div className="flex-1 min-w-0 mr-4">
-                      <p className="text-sm font-semibold text-gray-900">{label}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
-                    </div>
-                    <SlimToggle value={val} onChange={set} />
-                  </div>
-                ))}
-              </div>
-              <div className="px-5 py-4">
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { setShowNotificationsModal(false); toast.success('Настройки сохранены'); }}
-                  className="w-full py-3.5 rounded-xl text-white text-sm font-bold"
-                  style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5)' }}
-                >
-                  Сохранить
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>, document.body)}
-
-      {/* ── App Settings Modal ────────────────────────────────────── */}
-      {createPortal(<AnimatePresence>
-        {showAppSettingsModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed flex items-end justify-center z-[9999]"
-            style={{ top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(3px)' }}
-            onClick={e => { if (e.target === e.currentTarget) setShowAppSettingsModal(false); }}
-          >
-            <motion.div
-              initial={{ y: 60, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 60, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 360, damping: 34 }}
-              className="bg-white rounded-t-3xl w-full max-w-md overflow-hidden shadow-2xl"
-            >
-              <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 bg-gray-200 rounded-full" /></div>
-              <div className="flex items-center justify-between px-5 pt-3 pb-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
-                <h3 className="text-base font-black text-gray-900">Настройки</h3>
-                <motion.button whileTap={{ scale: 0.88 }} onClick={() => setShowAppSettingsModal(false)} className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center" style={{ minHeight: 0 }}>
-                  <X className="w-4 h-4 text-gray-500" />
-                </motion.button>
-              </div>
-              <div className="px-5 py-2">
-                {[
-                  { label: 'Тактильный отклик', sub: 'Вибрация при нажатиях', val: hapticFeedback, set: setHapticFeedback },
-                  { label: 'Тёмная тема', sub: 'Скоро', val: darkMode, set: setDarkMode, disabled: true },
-                  { label: 'Авто-обновление QR', sub: 'Каждые 30 секунд', val: autoRefreshQR, set: setAutoRefreshQR },
-                ].map(({ label, sub, val, set, disabled }) => (
-                  <div key={label} className="flex items-center justify-between py-3.5" style={{ borderBottom: '1px solid #f9f9f9', opacity: disabled ? 0.45 : 1 }}>
-                    <div className="flex-1 min-w-0 mr-4">
-                      <p className="text-sm font-semibold text-gray-900">{label}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
-                    </div>
-                    <SlimToggle value={val} onChange={v => !disabled && set(v)} disabled={disabled} />
-                  </div>
-                ))}
-                <div className="pt-2 pb-1">
-                  <button onClick={() => { nativeStorage.clear().then(() => toast.success('Кэш очищен')).catch(() => toast.error('Ошибка очистки кэша')); }}
-                    className="w-full flex items-center justify-between py-3 rounded-xl px-3 hover:bg-red-50 transition-colors">
-                    <span className="text-sm font-semibold text-red-500">Очистить кэш приложения</span>
-                    <ChevronRight className="w-4 h-4 text-red-300" />
-                  </button>
-                </div>
-              </div>
-              <div className="px-5 py-4">
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { setShowAppSettingsModal(false); toast.success('Настройки сохранены'); }}
-                  className="w-full py-3.5 rounded-xl text-white text-sm font-bold"
-                  style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5)' }}
-                >
-                  Готово
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>, document.body)}
-
-      {/* ── Billing History Modal ─────────────────────────────────── */}
-      <ModalPortal open={showBillingModal} onClose={() => setShowBillingModal(false)}>
-        <div className="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl" style={{ maxHeight: '80vh' }}>
-          <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
-            <h3 className="text-lg font-black text-gray-900">История оплат</h3>
-            <motion.button whileTap={{ scale: 0.88 }} onClick={() => setShowBillingModal(false)}
-              className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center" style={{ minHeight: 0 }}>
-              <X className="w-4 h-4 text-gray-500" />
-            </motion.button>
-          </div>
-          <div className="overflow-y-auto" style={{ maxHeight: 'calc(80vh - 72px)' }}>
-            {[
-              { date: '10 марта 2026', amount: '590 000', method: 'Payme', plan: 'Standard' },
-              { date: '8 февраля 2026', amount: '390 000', method: 'Click', plan: 'Light' },
-              { date: '9 января 2026', amount: '390 000', method: 'Payme', plan: 'Light' },
-            ].map((item, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.06, type: 'spring', stiffness: 340, damping: 28 }}
-                className="flex items-center gap-3 px-5 py-4 border-b border-gray-50 last:border-0">
-                <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Receipt className="w-4 h-4 text-green-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900">{item.plan} · {item.method}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{item.date}</p>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-sm font-black text-gray-900">{item.amount} <span className="font-normal text-gray-400 text-xs">сум</span></p>
-                  <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold">Оплачено</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </ModalPortal>
 
       {/* ── Help Center Modal ─────────────────────────────────────── */}
       <ModalPortal open={showHelpModal} onClose={() => setShowHelpModal(false)}>
@@ -623,12 +394,10 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
           </div>
           <div className="overflow-y-auto px-5 py-4 space-y-3" style={{ maxHeight: 'calc(85vh - 72px)' }}>
             {[
-              { q: 'Как воспользоваться подпиской?', a: 'Откройте вкладку QR, покажите код на кассе автомойки. Персонал отсканирует код и подтвердит мойку.' },
-              { q: 'Почему QR-код не работает?', a: 'QR-код действует 30 секунд и обновляется автоматически. Убедитесь, что подписка активна в разделе Профиль.' },
-              { q: 'Сколько раз можно мыть машину?', a: 'Тариф Personal — неограниченно, но с интервалом 24 часа между мойками. Business — без ограничений для такси.' },
-              { q: 'Как сменить госномер?', a: 'Профиль → Управление подпиской → Изменить госномер. Смена доступна 1 раз в 30 дней.' },
+              { q: 'Как воспользоваться подпиской?', a: 'Откройте вкладку QR, покажите код сотруднику мойки. Он отсканирует код и подтвердит мойку.' },
+              { q: 'Сколько раз можно мыть машину?', a: 'Столько, сколько моек осталось в вашем тарифе, с интервалом 24 часа между мойками на одну машину.' },
               { q: 'Как отменить подписку?', a: 'Профиль → Отменить подписку. Подписка остаётся активной до конца оплаченного периода.' },
-              { q: 'Партнёрская программа?', a: 'Если вы владелец автомойки — перейдите в Partner Dashboard в нижней части профиля.' },
+              { q: 'Я владелец автомойки, как подключиться?', a: 'Напишите в @DrivePass_bot — подключим вашу мойку к сети партнёров.' },
             ].map(({ q, a }, i) => (
               <motion.div key={i}
                 initial={{ opacity: 0, y: 10 }}
@@ -655,10 +424,7 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
           </div>
           <div className="px-5 py-4 space-y-3">
             {[
-              { icon: '📧', label: 'Email', value: 'support@drivepass.uz', action: () => { navigator.clipboard.writeText('support@drivepass.uz'); toast.success('Email скопирован'); } },
-              { icon: '📞', label: 'Телефон', value: '+998 90 000 00 00', action: () => { openUrl('tel:+998900000000'); } },
-              { icon: '💬', label: 'Telegram', value: '@drivepass_uz', action: () => { openUrl('https://t.me/drivepass_uz'); } },
-              { icon: '🕐', label: 'Время работы', value: 'Пн–Пт: 9:00–18:00 (UTC+5)', action: null },
+              { icon: '💬', label: 'Telegram', value: '@DrivePass_bot', action: () => { openUrl('https://t.me/DrivePass_bot'); } },
             ].map(({ icon, label, value, action }, i) => (
               <motion.button key={label}
                 initial={{ opacity: 0, y: 10 }}

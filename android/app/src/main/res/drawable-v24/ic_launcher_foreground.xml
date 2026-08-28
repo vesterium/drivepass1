@@ -21,38 +21,36 @@
         android:pathData="M26,33 Q26,30 29,30 L79,30 Q82,30 82,33 L82,38 Q82,41 79,41 L29,41 Q26,41 26,38 Z" />
 
     <!-- Left brush pole -->
-    <rect android:fillColor="#FFFFFF"
-        android:left="30" android:top="41" android:right="34" android:bottom="78" />
+    <path android:fillColor="#FFFFFF" android:pathData="M30,41 L34,41 L34,78 L30,78 Z" />
 
     <!-- Left bristles -->
-    <rect android:fillColor="#FFFFFF" android:left="22" android:top="44" android:right="30" android:bottom="48" />
-    <rect android:fillColor="#FFFFFF" android:left="22" android:top="51" android:right="30" android:bottom="55" />
-    <rect android:fillColor="#FFFFFF" android:left="22" android:top="58" android:right="30" android:bottom="62" />
-    <rect android:fillColor="#FFFFFF" android:left="22" android:top="65" android:right="30" android:bottom="69" />
-    <rect android:fillColor="#FFFFFF" android:left="22" android:top="72" android:right="30" android:bottom="76" />
+    <path android:fillColor="#FFFFFF" android:pathData="M22,44 L30,44 L30,48 L22,48 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M22,51 L30,51 L30,55 L22,55 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M22,58 L30,58 L30,62 L22,62 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M22,65 L30,65 L30,69 L22,69 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M22,72 L30,72 L30,76 L22,76 Z" />
 
-    <rect android:fillColor="#FFFFFF" android:left="34" android:top="44" android:right="42" android:bottom="48" />
-    <rect android:fillColor="#FFFFFF" android:left="34" android:top="51" android:right="42" android:bottom="55" />
-    <rect android:fillColor="#FFFFFF" android:left="34" android:top="58" android:right="42" android:bottom="62" />
-    <rect android:fillColor="#FFFFFF" android:left="34" android:top="65" android:right="42" android:bottom="69" />
-    <rect android:fillColor="#FFFFFF" android:left="34" android:top="72" android:right="42" android:bottom="76" />
+    <path android:fillColor="#FFFFFF" android:pathData="M34,44 L42,44 L42,48 L34,48 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M34,51 L42,51 L42,55 L34,55 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M34,58 L42,58 L42,62 L34,62 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M34,65 L42,65 L42,69 L34,69 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M34,72 L42,72 L42,76 L34,76 Z" />
 
     <!-- Right brush pole -->
-    <rect android:fillColor="#FFFFFF"
-        android:left="74" android:top="41" android:right="78" android:bottom="78" />
+    <path android:fillColor="#FFFFFF" android:pathData="M74,41 L78,41 L78,78 L74,78 Z" />
 
     <!-- Right bristles -->
-    <rect android:fillColor="#FFFFFF" android:left="66" android:top="44" android:right="74" android:bottom="48" />
-    <rect android:fillColor="#FFFFFF" android:left="66" android:top="51" android:right="74" android:bottom="55" />
-    <rect android:fillColor="#FFFFFF" android:left="66" android:top="58" android:right="74" android:bottom="62" />
-    <rect android:fillColor="#FFFFFF" android:left="66" android:top="65" android:right="74" android:bottom="69" />
-    <rect android:fillColor="#FFFFFF" android:left="66" android:top="72" android:right="74" android:bottom="76" />
+    <path android:fillColor="#FFFFFF" android:pathData="M66,44 L74,44 L74,48 L66,48 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M66,51 L74,51 L74,55 L66,55 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M66,58 L74,58 L74,62 L66,62 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M66,65 L74,65 L74,69 L66,69 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M66,72 L74,72 L74,76 L66,76 Z" />
 
-    <rect android:fillColor="#FFFFFF" android:left="78" android:top="44" android:right="86" android:bottom="48" />
-    <rect android:fillColor="#FFFFFF" android:left="78" android:top="51" android:right="86" android:bottom="55" />
-    <rect android:fillColor="#FFFFFF" android:left="78" android:top="58" android:right="86" android:bottom="62" />
-    <rect android:fillColor="#FFFFFF" android:left="78" android:top="65" android:right="86" android:bottom="69" />
-    <rect android:fillColor="#FFFFFF" android:left="78" android:top="72" android:right="86" android:bottom="76" />
+    <path android:fillColor="#FFFFFF" android:pathData="M78,44 L86,44 L86,48 L78,48 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M78,51 L86,51 L86,55 L78,55 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M78,58 L86,58 L86,62 L78,62 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M78,65 L86,65 L86,69 L78,69 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M78,72 L86,72 L86,76 L78,76 Z" />
 
     <!-- Car body -->
     <path
