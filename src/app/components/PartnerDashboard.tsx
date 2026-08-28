@@ -17,6 +17,7 @@ import {
 import { useLanguage } from '../contexts/LanguageContext';
 import { usePartner } from '../contexts/PartnerContext';
 import { PartnerScanner } from './PartnerScanner';
+import { WashLocationQr } from './WashLocationQr';
 import { PartnerSettings } from './PartnerSettings';
 import { apiHeaders, apiUrl } from '../utils/apiClient';
 import { PayoutReports } from './PayoutReports';
@@ -444,6 +445,8 @@ export function PartnerDashboard({ onExitPartnerMode, accessToken }: PartnerDash
             {/* ── SCANNER ──────────────────────────────────────────── */}
             {activeTab === 'scanner' && (
               <div className="space-y-4">
+                {accessToken && <WashLocationQr accessToken={accessToken} />}
+
                 <Card>
                   <div className="flex items-start gap-3.5">
                     <div
@@ -454,10 +457,11 @@ export function PartnerDashboard({ onExitPartnerMode, accessToken }: PartnerDash
                     </div>
                     <div>
                       <p className="text-[15px] text-gray-900 mb-1" style={{ letterSpacing: '-0.01em' }}>
-                        Сканер клиентских QR
+                        Сканер клиентских QR (резервный способ)
                       </p>
                       <p className="text-[13px] text-gray-500 leading-relaxed">
-                        Наведите камеру на QR-код клиента. Система автоматически проверит подписку и подтвердит мойку.
+                        Обычно клиент сканирует QR на мойке сам и мойка списывается автоматически. Этот сканер — запасной
+                        вариант, если у клиента не получилось отсканировать самому.
                       </p>
                     </div>
                   </div>

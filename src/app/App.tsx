@@ -67,6 +67,15 @@ function AppContent() {
   const [isPartnerMode, setIsPartnerMode] = useState(false);
   const viewHistoryRef = useRef<ClientView[]>([]);
 
+  // A wash's printed location QR, scanned outside Telegram, lands the client bot's
+  // "checkin_..." deep-link button here as `?checkin=<token>` -- read once on mount, then
+  // consumed (cleared) once ClientWashScanner has submitted it, so a later reload doesn't
+  // resubmit the same token.
+  const [pendingCheckinToken] = useState<string | null>(() =>
+    typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('checkin') : null,
+  );
+  const [checkinToken, setCheckinToken] = useState<string | null>(pendingCheckinToken);
+
   const navigateTo = useCallback((view: ClientView) => {
     hapticTap();
     viewHistoryRef.current.push(currentView);
@@ -102,8 +111,9 @@ function AppContent() {
     if (partnerAdmin) {
       setIsPartnerMode(true);
     } else {
-      setCurrentView('dashboard');
+      setCurrentView(checkinToken ? 'scanner' : 'dashboard');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, partnerAdmin?.id]);
 
   // Android back button
@@ -222,7 +232,9 @@ function AppContent() {
       case 'locations':
         return <Locations accessToken={accessToken} />;
       case 'scanner':
-        return <Scanner accessToken={accessToken} />;
+        return (
+          <Scanner accessToken={accessToken} checkinToken={checkinToken} onCheckinConsumed={() => setCheckinToken(null)} />
+        );
       case 'profile':
         return (
           <Profile
