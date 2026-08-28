@@ -11,6 +11,7 @@ import { PRICING_PACKAGES } from '../constants/pricing';
 import { toast } from 'sonner';
 import { QRDisplay } from './QRDisplay';
 import { SubscriptionModal } from './SubscriptionModal';
+import { WeatherWidget } from './WeatherWidget';
 
 interface DashboardProps {
   user?: any;
@@ -70,6 +71,7 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory }:
               <p className="text-sm font-bold tracking-tight leading-none">{BRAND.name}</p>
             </div>
           </div>
+          <WeatherWidget />
         </div>
 
         {/* Greeting */}
