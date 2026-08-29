@@ -22,6 +22,8 @@ import { WelcomeScreen } from './components/WelcomeScreen';
 import { InstallPrompt } from './components/InstallPrompt';
 import { useLanguage } from './contexts/LanguageContext';
 import { SplashScreen } from './components/SplashScreen';
+import { LegalDocument } from './components/LegalDocument';
+import { PUBLIC_OFFER, PRIVACY_POLICY } from './constants/legal';
 import { NetworkBanner } from './components/NetworkBanner';
 import { ErrorBoundary } from './core/errors/ErrorBoundary';
 import { SUB_VIEWS } from './core/types';
@@ -75,6 +77,15 @@ function AppContent() {
     typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('checkin') : null,
   );
   const [checkinToken, setCheckinToken] = useState<string | null>(pendingCheckinToken);
+
+  // ?legal=offer|privacy -- the bot's "Документы" buttons open a document straight from the
+  // chat instead of making the client hunt for Профиль → Правовая информация. Read once on
+  // mount, closable like any modal.
+  const [legalDoc, setLegalDoc] = useState<'offer' | 'privacy' | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const value = new URLSearchParams(window.location.search).get('legal');
+    return value === 'offer' || value === 'privacy' ? value : null;
+  });
 
   const navigateTo = useCallback((view: ClientView) => {
     hapticTap();
@@ -358,6 +369,13 @@ function AppContent() {
           </div>
         </nav>
       )}
+
+      <LegalDocument
+        open={legalDoc !== null}
+        onClose={() => setLegalDoc(null)}
+        title={legalDoc === 'privacy' ? 'Политика конфиденциальности' : 'Публичная оферта'}
+        sections={legalDoc === 'privacy' ? PRIVACY_POLICY : PUBLIC_OFFER}
+      />
 
       <Toaster position="top-center" richColors />
       <NetworkBanner />

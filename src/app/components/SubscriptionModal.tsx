@@ -53,6 +53,7 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
   const [loading, setLoading] = useState(false);
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [cardNumber, setCardNumber] = useState<string | null>(null);
   const [cardHolderName, setCardHolderName] = useState<string | null>(null);
   const [amount, setAmount] = useState(0);
@@ -368,28 +369,53 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
                       </span>
                     </div>
 
+                    {/* Explicit consent, not a passive footnote -- acceptance of the offer is
+                        what forms the contract (see constants/legal.ts §1), so it's recorded as
+                        a deliberate action and gates the button rather than sitting under it. */}
+                    <label
+                      className="flex items-start gap-3 rounded-xl p-3.5 cursor-pointer transition-colors"
+                      style={{
+                        background: acceptedTerms ? '#f0fdf4' : '#f9fafb',
+                        border: `1px solid ${acceptedTerms ? '#bbf7d0' : '#e5e7eb'}`,
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={acceptedTerms}
+                        onChange={e => setAcceptedTerms(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 flex-shrink-0 accent-green-600 cursor-pointer"
+                      />
+                      <span className="text-xs text-gray-600 leading-relaxed">
+                        Я принимаю{' '}
+                        <button
+                          type="button"
+                          onClick={e => { e.preventDefault(); setShowOfferModal(true); }}
+                          className="underline font-semibold text-gray-800"
+                        >
+                          Публичную оферту
+                        </button>{' '}
+                        и{' '}
+                        <button
+                          type="button"
+                          onClick={e => { e.preventDefault(); setShowPrivacyModal(true); }}
+                          className="underline font-semibold text-gray-800"
+                        >
+                          Политику конфиденциальности
+                        </button>
+                        .
+                      </span>
+                    </label>
+
                     <motion.button
-                      whileTap={{ scale: 0.97 }}
+                      whileTap={acceptedTerms && !loading ? { scale: 0.97 } : undefined}
                       onClick={handleConfirmPaid}
-                      disabled={loading}
-                      className="w-full text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"
-                      style={{ background: 'linear-gradient(135deg, #16a34a, #059669)', boxShadow: '0 4px 16px rgba(22,163,74,0.28)' }}
+                      disabled={loading || !acceptedTerms}
+                      className="w-full text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                      style={{ background: 'linear-gradient(135deg, #16a34a, #059669)', boxShadow: acceptedTerms ? '0 4px 16px rgba(22,163,74,0.28)' : 'none' }}
                     >
                       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : '💳'}
-                      Я оплатил
+                      Согласен и оплатил
                     </motion.button>
-
-                    <p className="text-center text-[11px] text-gray-400 leading-relaxed">
-                      Оплачивая, вы принимаете условия{' '}
-                      <button onClick={() => setShowOfferModal(true)} className="underline text-gray-500">
-                        публичной оферты
-                      </button>{' '}
-                      и{' '}
-                      <button onClick={() => setShowPrivacyModal(true)} className="underline text-gray-500">
-                        политики конфиденциальности
-                      </button>
-                      .
-                    </p>
                   </div>
                 )}
 
