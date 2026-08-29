@@ -19,7 +19,11 @@
  */
 
 export const LEGAL_ENTITY_NAME = 'Индивидуальный предприниматель Юлдашев Озоджон';
-export const LEGAL_REGISTRATION_PLACEHOLDER = '[УКАЖИТЕ ПИНФЛ / № СВИДЕТЕЛЬСТВА ИП]';
+// The ИП's registration certificate number / СТИР (tax ID) -- a business identifier, safe
+// and standard to publish in a contract. Deliberately NOT the owner's ПИНФЛ (personal ID
+// number, akin to an SSN) -- that's sensitive personal data with no reason to appear in a
+// public-facing document, and publishing it would itself be a privacy risk.
+export const LEGAL_REGISTRATION_PLACEHOLDER = '[УКАЖИТЕ № СВИДЕТЕЛЬСТВА ИП / СТИР]';
 export const LEGAL_ADDRESS_PLACEHOLDER = '[УКАЖИТЕ ЮРИДИЧЕСКИЙ / ФАКТИЧЕСКИЙ АДРЕС]';
 export const LEGAL_CONTACT = '@DrivePass_bot (Telegram)';
 export const LEGAL_LAST_UPDATED = '29.08.2026';
