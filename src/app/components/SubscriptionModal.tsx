@@ -15,6 +15,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, Car, Shield, Loader2, ChevronRight, Clock, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiHeaders, apiUrl } from '../utils/apiClient';
+import { LegalDocument } from './LegalDocument';
+import { PUBLIC_OFFER, PRIVACY_POLICY } from '../constants/legal';
 
 interface SubscriptionModalProps {
   accessToken: string;
@@ -49,6 +51,8 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
   const [selectedPlan, setSelectedPlan] = useState<PlanOut | null>(null);
   const [plates, setPlates] = useState<string[]>(['']);
   const [loading, setLoading] = useState(false);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [cardNumber, setCardNumber] = useState<string | null>(null);
   const [cardHolderName, setCardHolderName] = useState<string | null>(null);
   const [amount, setAmount] = useState(0);
@@ -137,7 +141,7 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
     toast.success('Номер карты скопирован');
   };
 
-  return createPortal(
+  return <>{createPortal(
     <AnimatePresence>
       <motion.div
         key="sub-backdrop"
@@ -374,6 +378,18 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
                       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : '💳'}
                       Я оплатил
                     </motion.button>
+
+                    <p className="text-center text-[11px] text-gray-400 leading-relaxed">
+                      Оплачивая, вы принимаете условия{' '}
+                      <button onClick={() => setShowOfferModal(true)} className="underline text-gray-500">
+                        публичной оферты
+                      </button>{' '}
+                      и{' '}
+                      <button onClick={() => setShowPrivacyModal(true)} className="underline text-gray-500">
+                        политики конфиденциальности
+                      </button>
+                      .
+                    </p>
                   </div>
                 )}
 
@@ -422,5 +438,8 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
       </motion.div>
     </AnimatePresence>,
     document.body,
-  );
+  )}
+    <LegalDocument open={showOfferModal} onClose={() => setShowOfferModal(false)} title="Публичная оферта" sections={PUBLIC_OFFER} />
+    <LegalDocument open={showPrivacyModal} onClose={() => setShowPrivacyModal(false)} title="Политика конфиденциальности" sections={PRIVACY_POLICY} />
+  </>;
 }

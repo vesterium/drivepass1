@@ -8,13 +8,15 @@ import {
   User, HelpCircle, LogOut, ChevronRight,
   Calendar, Globe,
   Car, Shield, TrendingUp, CheckCircle2, AlertCircle,
-  X,
+  X, ScrollText, FileText,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { useAuth } from '../contexts/AuthContext';
 import { PRICING_PACKAGES } from '../constants/pricing';
 import { SubscriptionModal } from './SubscriptionModal';
+import { LegalDocument } from './LegalDocument';
+import { PUBLIC_OFFER, PRIVACY_POLICY } from '../constants/legal';
 
 interface ProfileProps {
   user?: any;
@@ -27,6 +29,8 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showSubModal, setShowSubModal] = useState(false);
   const [subInitialTier, setSubInitialTier] = useState<'personal' | 'business'>('personal');
 
@@ -285,7 +289,32 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
             </div>
             <div className="flex-1 text-left">
               <p className="text-gray-900 text-sm font-semibold">{t('profile.contactSupport')}</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">support@drivepass.uz</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">@DrivePass_bot</p>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Legal Section ──────────────────────────────────────────── */}
+      <div className="px-5 mb-4">
+        <p className="text-[10px] text-gray-400 uppercase tracking-[0.14em] font-bold mb-2.5 px-1">Правовая информация</p>
+        <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          <button onClick={() => setShowOfferModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors border-b border-gray-50">
+            <div className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <FileText className="w-4 h-4 text-gray-400" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-gray-900 text-sm font-semibold">Публичная оферта</p>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+          </button>
+          <button onClick={() => setShowPrivacyModal(true)} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition-colors">
+            <div className="w-8 h-8 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <ScrollText className="w-4 h-4 text-gray-400" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-gray-900 text-sm font-semibold">Политика конфиденциальности</p>
             </div>
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
           </button>
@@ -394,8 +423,8 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
           </div>
           <div className="overflow-y-auto px-5 py-4 space-y-3" style={{ maxHeight: 'calc(85vh - 72px)' }}>
             {[
-              { q: 'Как воспользоваться подпиской?', a: 'Откройте вкладку QR, покажите код сотруднику мойки. Он отсканирует код и подтвердит мойку.' },
-              { q: 'Сколько раз можно мыть машину?', a: 'Столько, сколько моек осталось в вашем тарифе, с интервалом 24 часа между мойками на одну машину.' },
+              { q: 'Как воспользоваться подпиской?', a: 'Откройте вкладку «Сканер» и отсканируйте QR-код, наклеенный на самой мойке. Мойка спишется автоматически.' },
+              { q: 'Сколько раз можно мыть машину?', a: 'Столько, сколько моек осталось в вашем тарифе, не чаще одного раза в 20 часов и не более одного раза в сутки на одну машину.' },
               { q: 'Как отменить подписку?', a: 'Профиль → Отменить подписку. Подписка остаётся активной до конца оплаченного периода.' },
               { q: 'Я владелец автомойки, как подключиться?', a: 'Напишите в @DrivePass_bot — подключим вашу мойку к сети партнёров.' },
             ].map(({ q, a }, i) => (
@@ -445,6 +474,10 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
           </div>
         </div>
       </ModalPortal>
+
+      {/* ── Legal Modals ──────────────────────────────────────────── */}
+      <LegalDocument open={showOfferModal} onClose={() => setShowOfferModal(false)} title="Публичная оферта" sections={PUBLIC_OFFER} />
+      <LegalDocument open={showPrivacyModal} onClose={() => setShowPrivacyModal(false)} title="Политика конфиденциальности" sections={PRIVACY_POLICY} />
 
       {/* ── Subscription Modal ────────────────────────────────────── */}
       {showSubModal && accessToken && (
