@@ -175,6 +175,23 @@ function AppContent() {
 
   // ── Render guards ──────────────────────────────────────────────────────────
 
+  // Legal documents come first, ahead of onboarding/auth: the whole point of an offer is
+  // that you can read it *before* committing to anything, and the bot's "Читать полностью"
+  // button links here for clients who may not be signed in on this device at all. Rendered
+  // over a real ground rather than as a bare modal, since there's no app behind it here.
+  if (legalDoc !== null) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <LegalDocument
+          open
+          onClose={() => setLegalDoc(null)}
+          title={legalDoc === 'privacy' ? 'Политика конфиденциальности' : 'Публичная оферта'}
+          sections={legalDoc === 'privacy' ? PRIVACY_POLICY : PUBLIC_OFFER}
+        />
+      </div>
+    );
+  }
+
   if (!storageReady || user === undefined) {
     return <SplashScreen />;
   }
@@ -369,13 +386,6 @@ function AppContent() {
           </div>
         </nav>
       )}
-
-      <LegalDocument
-        open={legalDoc !== null}
-        onClose={() => setLegalDoc(null)}
-        title={legalDoc === 'privacy' ? 'Политика конфиденциальности' : 'Публичная оферта'}
-        sections={legalDoc === 'privacy' ? PRIVACY_POLICY : PUBLIC_OFFER}
-      />
 
       <Toaster position="top-center" richColors />
       <NetworkBanner />
