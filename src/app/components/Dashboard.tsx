@@ -3,13 +3,12 @@ import {
   Car, TrendingUp, CreditCard, MapPin,
   Clock, QrCode, Timer, ChevronRight, Zap,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { BRAND } from '../constants/branding';
 import { PRICING_PACKAGES } from '../constants/pricing';
 import { toast } from 'sonner';
-import { QRDisplay } from './QRDisplay';
 import { SubscriptionModal } from './SubscriptionModal';
 import { WeatherWidget } from './WeatherWidget';
 
@@ -18,30 +17,25 @@ interface DashboardProps {
   accessToken?: string | null;
   onGoToLocations?: () => void;
   onGoToHistory?: () => void;
+  onGoToScanner?: () => void;
 }
 
-export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory }: DashboardProps) {
+export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, onGoToScanner }: DashboardProps) {
   const { language } = useLanguage();
   const { subscription, hasActiveSubscription, refresh: refreshSubscription } = useSubscription();
 
-  const [showQR,                setShowQR]                = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [loadingStatus,         setLoadingStatus]         = useState(false);
-
-  // Actual cooldown/exhausted-washes eligibility is enforced server-side at charge time
-  // (see visits.charge_visit) -- there's no live pre-check endpoint for the dashboard to
-  // call before that, so the QR button is always enabled here and a scan that's genuinely
-  // ineligible gets rejected at the mojka instead.
-  const canWash = true;
-  const timeLeft = '';
 
   const userName  = user?.firstName || 'Привет';
   const carNumber = subscription?.carPlate || '';
 
+  // QR is printed at the wash itself now -- the client scans it there, not the other way
+  // around, so this button just sends them to the Scanner tab (ClientWashScanner.tsx)
+  // instead of expanding an in-place "show my QR" card (the old, now-retired staff-scans
+  // model, see QRDisplay.tsx).
   const handleQRClick = () => {
     if (!hasActiveSubscription) { setShowSubscriptionModal(true); return; }
-    if (!canWash) { toast.error(`Следующая мойка через ${timeLeft}`); return; }
-    setShowQR(true);
+    onGoToScanner?.();
   };
 
   const handleSubscriptionActivated = async () => {
@@ -91,88 +85,42 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory }:
 
       </motion.header>
 
-      {/* ── QR SECTION ──────────────────────────────────────────────────── */}
+      {/* ── SCAN SECTION ─────────────────────────────────────────────────
+          QR is printed at the wash, not shown here -- tapping this sends the client to the
+          Scanner tab (ClientWashScanner.tsx) to scan it themselves and charge instantly. */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.22, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="px-5 mb-4"
       >
-        <AnimatePresence mode="wait">
-          {showQR && hasActiveSubscription && accessToken ? (
-            <motion.div
-              key="qr-open"
-              initial={{ opacity: 0, y: -16, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -12, scale: 0.97 }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-white">Ваш QR-код</p>
-                <button
-                  onClick={() => setShowQR(false)}
-                  className="text-blue-200 text-xs font-medium px-3 py-1.5 bg-white/10 rounded-lg"
-                >
-                  Скрыть
-                </button>
-              </div>
-              <QRDisplay
-                accessToken={accessToken}
-                user={user}
-                onNeedSubscription={() => setShowSubscriptionModal(true)}
-              />
-            </motion.div>
-          ) : (
-            <motion.button
-              key="qr-btn"
-              onClick={handleQRClick}
-              disabled={loadingStatus}
-              initial={{ opacity: 0, y: 16, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 12, scale: 0.97 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              whileTap={{ scale: 0.97 }}
-              whileHover={{ scale: 1.01 }}
-              className={`
-                w-full flex items-center justify-between rounded-2xl p-5 shadow-xl
-                ${!hasActiveSubscription
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
-                  : canWash
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-600'
-                  : 'bg-gradient-to-r from-amber-500 to-orange-500 opacity-80 cursor-not-allowed'
-                }
-              `}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                  {!hasActiveSubscription
-                    ? <CreditCard className="w-5 h-5 text-white" />
-                    : canWash
-                    ? <QrCode className="w-5 h-5 text-white" />
-                    : <Timer className="w-5 h-5 text-white" />
-                  }
-                </div>
-                <div className="text-left">
-                  <p className="text-base font-bold text-white leading-tight">
-                    {!hasActiveSubscription
-                      ? 'Оформить подписку'
-                      : canWash
-                      ? 'Открыть QR-код'
-                      : 'Кулдаун активен'}
-                  </p>
-                  <p className="text-xs text-white/70 mt-0.5">
-                    {!hasActiveSubscription
-                      ? 'от 390 000 сум/мес'
-                      : canWash
-                      ? 'Нажмите для получения'
-                      : `Через ${timeLeft}`}
-                  </p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-white/60 flex-shrink-0" />
-            </motion.button>
-          )}
-        </AnimatePresence>
+        <motion.button
+          onClick={handleQRClick}
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.01 }}
+          className={`
+            w-full flex items-center justify-between rounded-2xl p-5 shadow-xl
+            ${!hasActiveSubscription
+              ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
+              : 'bg-gradient-to-r from-green-500 to-emerald-600'
+            }
+          `}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              {!hasActiveSubscription ? <CreditCard className="w-5 h-5 text-white" /> : <QrCode className="w-5 h-5 text-white" />}
+            </div>
+            <div className="text-left">
+              <p className="text-base font-bold text-white leading-tight">
+                {!hasActiveSubscription ? 'Оформить подписку' : 'Сканировать QR мойки'}
+              </p>
+              <p className="text-xs text-white/70 mt-0.5">
+                {!hasActiveSubscription ? 'от 390 000 сум/мес' : 'QR наклеен на мойке — отсканируйте на месте'}
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-white/60 flex-shrink-0" />
+        </motion.button>
       </motion.section>
 
       {/* ── SUBSCRIPTION CARD ───────────────────────────────────────────── */}

@@ -21,7 +21,7 @@ import { Auth } from './components/Auth';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { InstallPrompt } from './components/InstallPrompt';
 import { useLanguage } from './contexts/LanguageContext';
-import { DrivePassLogo } from './components/DrivePassLogo';
+import { SplashScreen } from './components/SplashScreen';
 import { NetworkBanner } from './components/NetworkBanner';
 import { ErrorBoundary } from './core/errors/ErrorBoundary';
 import { SUB_VIEWS } from './core/types';
@@ -165,22 +165,7 @@ function AppContent() {
   // ── Render guards ──────────────────────────────────────────────────────────
 
   if (!storageReady || user === undefined) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <DrivePassLogo size={56} showText />
-          <div className="flex items-center justify-center gap-1.5 mt-2">
-            {[0, 1, 2].map(i => (
-              <div
-                key={i}
-                className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <SplashScreen />;
   }
 
   if (showOnboarding) return <Onboarding onComplete={handleOnboardingComplete} />;
@@ -227,6 +212,7 @@ function AppContent() {
             accessToken={accessToken}
             onGoToLocations={() => setCurrentView('locations')}
             onGoToHistory={() => setCurrentView('history')}
+            onGoToScanner={() => setCurrentView('scanner')}
           />
         );
       case 'locations':
