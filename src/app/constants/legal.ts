@@ -24,11 +24,9 @@ export const LEGAL_ENTITY_NAME = 'Индивидуальный предприн�
 // number, akin to an SSN) -- that's sensitive personal data with no reason to appear in a
 // public-facing document, and publishing it would itself be a privacy risk.
 export const LEGAL_REGISTRATION_NUMBER = '7265067';
-// The postal address the e-commerce law wants in an offer is where correspondence actually
-// reaches the seller -- not necessarily the residence the ИП is registered at. Kept a
-// placeholder until that choice is made, since publishing a home address to every app user
-// is a privacy decision the owner should make deliberately.
-export const LEGAL_ADDRESS_PLACEHOLDER = '[УКАЖИТЕ ПОЧТОВЫЙ АДРЕС]';
+// Place of business as printed on the ИП registration certificate -- deliberately this and
+// not the owner's residence, which has no reason to be published to every app user.
+export const LEGAL_ADDRESS = 'Самаркандская область, город Самарканд, Sat-Tepo';
 export const LEGAL_CONTACT = '@DrivePass_bot (Telegram)';
 export const LEGAL_LAST_UPDATED = '30.08.2026';
 
@@ -106,7 +104,7 @@ export const PUBLIC_OFFER: LegalSection[] = [
     body: [
       LEGAL_ENTITY_NAME,
       `Свидетельство о регистрации ИП № ${LEGAL_REGISTRATION_NUMBER}`,
-      `Адрес: ${LEGAL_ADDRESS_PLACEHOLDER}`,
+      `Место осуществления деятельности: ${LEGAL_ADDRESS}`,
       `Контакт для обращений: ${LEGAL_CONTACT}`,
     ],
   },
@@ -173,7 +171,7 @@ export const PRIVACY_POLICY: LegalSection[] = [
     body: [
       LEGAL_ENTITY_NAME,
       `Свидетельство о регистрации ИП № ${LEGAL_REGISTRATION_NUMBER}`,
-      `Адрес: ${LEGAL_ADDRESS_PLACEHOLDER}`,
+      `Место осуществления деятельности: ${LEGAL_ADDRESS}`,
       `Контакт: ${LEGAL_CONTACT}`,
     ],
   },
