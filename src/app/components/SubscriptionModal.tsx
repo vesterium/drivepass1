@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Check, Car, Shield, Loader2, ChevronRight, Clock, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiHeaders, apiUrl } from '../utils/apiClient';
+import { openUrl } from '../core/native/capacitor';
 import { LegalDocument } from './LegalDocument';
 import { PUBLIC_OFFER, PRIVACY_POLICY } from '../constants/legal';
 
@@ -56,6 +57,9 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [cardNumber, setCardNumber] = useState<string | null>(null);
   const [cardHolderName, setCardHolderName] = useState<string | null>(null);
+  // Non-null once PAYMENT_PROVIDER is payme/click: the backend hands us the checkout URL,
+  // so turning the gateway on is a server-side config change with no PWA release needed.
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [amount, setAmount] = useState(0);
   const [paymentId, setPaymentId] = useState<string | null>(null);
 
@@ -101,6 +105,7 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
       setAmount(data.amount);
       setCardNumber(data.cardNumber ?? null);
       setCardHolderName(data.cardHolderName ?? null);
+      setPaymentUrl(data.paymentUrl ?? null);
       setStep('payment');
     } catch {
       toast.error('Ошибка сети. Попробуйте снова.');
@@ -341,7 +346,12 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
                       <p className="text-3xl font-bold text-green-700">{amount.toLocaleString('ru-RU')} сум</p>
                     </div>
 
-                    {cardNumber ? (
+                    {paymentUrl ? (
+                      <div className="rounded-xl p-4 text-center text-sm" style={{ background: '#f9fafb', border: '1px solid #e5e7eb', color: '#4b5563' }}>
+                        Оплата картой Uzcard или Humo. Подписка активируется автоматически
+                        сразу после оплаты — подтверждать вручную не нужно.
+                      </div>
+                    ) : cardNumber ? (
                       <div className="rounded-xl p-4" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
                         <p className="text-xs text-gray-500 mb-1">Номер карты</p>
                         <div className="flex items-center justify-between gap-2 mb-3">
@@ -363,11 +373,13 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
                       </div>
                     )}
 
-                    <div className="rounded-xl p-3 text-center text-xs" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
-                      <span style={{ color: '#b45309' }}>
-                        Переведите сумму на карту, затем нажмите «Я оплатил». Подписка активируется, когда владелец подтвердит платёж.
-                      </span>
-                    </div>
+                    {!paymentUrl && (
+                      <div className="rounded-xl p-3 text-center text-xs" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
+                        <span style={{ color: '#b45309' }}>
+                          Переведите сумму на карту, затем нажмите «Я оплатил». Подписка активируется, когда владелец подтвердит платёж.
+                        </span>
+                      </div>
+                    )}
 
                     {/* Explicit consent, not a passive footnote -- acceptance of the offer is
                         what forms the contract (see constants/legal.ts §1), so it's recorded as
@@ -408,13 +420,13 @@ export function SubscriptionModal({ accessToken, onClose, onActivated }: Subscri
 
                     <motion.button
                       whileTap={acceptedTerms && !loading ? { scale: 0.97 } : undefined}
-                      onClick={handleConfirmPaid}
+                      onClick={() => { if (paymentUrl) { openUrl(paymentUrl); } else { handleConfirmPaid(); } }}
                       disabled={loading || !acceptedTerms}
                       className="w-full text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                       style={{ background: 'linear-gradient(135deg, #16a34a, #059669)', boxShadow: acceptedTerms ? '0 4px 16px rgba(22,163,74,0.28)' : 'none' }}
                     >
                       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : '💳'}
-                      Согласен и оплатил
+                      {paymentUrl ? 'Согласен и оплатить' : 'Согласен и оплатил'}
                     </motion.button>
                   </div>
                 )}
