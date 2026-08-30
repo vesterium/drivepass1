@@ -12,10 +12,10 @@
  *  - data-collected list matches the actual models (User, Car, Subscription, Visit)
  *  - contact is only @DrivePass_bot, matching how this business actually operates
  *
- * [УКАЖИТЕ ...] placeholders mark facts only the business owner can supply (ИП registration
- * number, legal address) -- do not fill these with invented values. This document is a
- * professional first draft, not a substitute for review by a lawyer licensed in Uzbekistan
- * before it's relied on for a real paid service -- see the note at the bottom of each page.
+ * Any remaining [УКАЖИТЕ ...] placeholder marks a fact only the business owner can supply --
+ * never fill one with an invented value. This document is a professional first draft, not a
+ * substitute for review by a lawyer licensed in Uzbekistan before it's relied on for a real
+ * paid service.
  */
 
 export const LEGAL_ENTITY_NAME = 'Индивидуальный предприниматель Юлдашев Озоджон';
@@ -23,10 +23,14 @@ export const LEGAL_ENTITY_NAME = 'Индивидуальный предприн�
 // and standard to publish in a contract. Deliberately NOT the owner's ПИНФЛ (personal ID
 // number, akin to an SSN) -- that's sensitive personal data with no reason to appear in a
 // public-facing document, and publishing it would itself be a privacy risk.
-export const LEGAL_REGISTRATION_PLACEHOLDER = '[УКАЖИТЕ № СВИДЕТЕЛЬСТВА ИП / СТИР]';
-export const LEGAL_ADDRESS_PLACEHOLDER = '[УКАЖИТЕ ЮРИДИЧЕСКИЙ / ФАКТИЧЕСКИЙ АДРЕС]';
+export const LEGAL_REGISTRATION_NUMBER = '7265067';
+// The postal address the e-commerce law wants in an offer is where correspondence actually
+// reaches the seller -- not necessarily the residence the ИП is registered at. Kept a
+// placeholder until that choice is made, since publishing a home address to every app user
+// is a privacy decision the owner should make deliberately.
+export const LEGAL_ADDRESS_PLACEHOLDER = '[УКАЖИТЕ ПОЧТОВЫЙ АДРЕС]';
 export const LEGAL_CONTACT = '@DrivePass_bot (Telegram)';
-export const LEGAL_LAST_UPDATED = '29.08.2026';
+export const LEGAL_LAST_UPDATED = '30.08.2026';
 
 export interface LegalSection {
   title: string;
@@ -101,7 +105,7 @@ export const PUBLIC_OFFER: LegalSection[] = [
     title: '9. Реквизиты Исполнителя',
     body: [
       LEGAL_ENTITY_NAME,
-      `Регистрационный номер: ${LEGAL_REGISTRATION_PLACEHOLDER}`,
+      `Свидетельство о регистрации ИП № ${LEGAL_REGISTRATION_NUMBER}`,
       `Адрес: ${LEGAL_ADDRESS_PLACEHOLDER}`,
       `Контакт для обращений: ${LEGAL_CONTACT}`,
     ],
@@ -168,7 +172,7 @@ export const PRIVACY_POLICY: LegalSection[] = [
     title: '8. Реквизиты Оператора',
     body: [
       LEGAL_ENTITY_NAME,
-      `Регистрационный номер: ${LEGAL_REGISTRATION_PLACEHOLDER}`,
+      `Свидетельство о регистрации ИП № ${LEGAL_REGISTRATION_NUMBER}`,
       `Адрес: ${LEGAL_ADDRESS_PLACEHOLDER}`,
       `Контакт: ${LEGAL_CONTACT}`,
     ],
