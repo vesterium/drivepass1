@@ -33,7 +33,7 @@ import type { ClientView, Role } from './core/types';
 const NAV_ITEMS = [
   { id: 'dashboard', icon: Home,   labelKey: 'nav.home' },
   { id: 'locations', icon: MapPin, labelKey: 'nav.locations' },
-  { id: 'scanner',   icon: QrCode, labelKey: 'QR', isCenter: true },
+  { id: 'scanner',   icon: QrCode, labelKey: 'nav.scan', isCenter: true },
   { id: 'profile',   icon: User,   labelKey: 'nav.profile' },
 ] as const;
 

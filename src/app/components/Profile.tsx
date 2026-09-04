@@ -91,7 +91,7 @@ export function Profile({ user, onViewHistory, onSignOut }: ProfileProps) {
               value: hasActiveSubscription ? String(subscription!.washesLimit - subscription!.washesUsed) : '—',
               label: t('profile.statWashes'),
             },
-            { value: hasActiveSubscription ? '24ч' : '—', label: t('profile.statCooldown') },
+            { value: hasActiveSubscription ? '1/сутки' : '—', label: t('profile.statCooldown') },
           ].map(({ value, label }) => (
             <div
               key={label}

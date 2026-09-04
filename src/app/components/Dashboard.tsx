@@ -11,6 +11,7 @@ import { PRICING_PACKAGES } from '../constants/pricing';
 import { toast } from 'sonner';
 import { SubscriptionModal } from './SubscriptionModal';
 import { WeatherWidget } from './WeatherWidget';
+import { WashAvailability } from './WashAvailability';
 
 interface DashboardProps {
   user?: any;
@@ -83,6 +84,10 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, o
           )}
         </motion.div>
 
+        {/* Answers "can I wash right now" before the client taps anything -- the same
+            eligibility check the scanner enforces, so it can't disagree with it. */}
+        <WashAvailability accessToken={accessToken ?? null} className="mt-4" />
+
       </motion.header>
 
       {/* ── SCAN SECTION ─────────────────────────────────────────────────
@@ -143,7 +148,7 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, o
                   <p className="text-xs text-gray-400 mt-1">
                     {currentPkg.name[language as 'ru' | 'en' | 'uz']}
                     {subscription?.carPlate ? ` · ${subscription.carPlate}` : ''}
-                    {' · '}24ч лимит
+                    {' · '}1 мойка в сутки
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 px-2.5 py-1.5 rounded-full text-xs font-semibold flex-shrink-0">
@@ -154,7 +159,7 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, o
 
               <div className="space-y-2 mb-4">
                 {[
-                  { icon: Timer,  text: '1 мойка каждые 24 часа' },
+                  { icon: Timer,  text: '1 мойка в сутки на автомобиль' },
                   { icon: MapPin, text: 'Все мойки Самарканда' },
                   { icon: Zap,    text: '+10 баллов за мойку' },
                 ].map(({ icon: Icon, text }) => (

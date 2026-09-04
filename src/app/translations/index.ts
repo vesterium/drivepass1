@@ -122,7 +122,7 @@ export const translations = {
       closeBtn: 'Close',
       cancelConfirmText: 'You will lose unlimited wash access. Bonus points will be frozen.',
       statWashes: 'Washes',
-      statCooldown: 'Cooldown',
+      statCooldown: 'Limit',
     },
     history: {
       title: 'Wash History',
@@ -522,7 +522,7 @@ export const translations = {
       closeBtn: 'Закрыть',
       cancelConfirmText: 'Вы потеряете доступ к безлимитным мойкам. Бонусные баллы будут заморожены.',
       statWashes: 'Моек',
-      statCooldown: 'Кулдаун',
+      statCooldown: 'Лимит',
     },
     history: {
       title: 'История моек',
@@ -922,7 +922,7 @@ export const translations = {
       closeBtn: 'Yopish',
       cancelConfirmText: "Cheksiz yuvish imkoniyatini yo'qotasiz. Bonus ballar muzlatiladi.",
       statWashes: 'Yuvish',
-      statCooldown: 'Kutish',
+      statCooldown: 'Limit',
     },
     history: {
       title: 'Yuvish tarixi',
