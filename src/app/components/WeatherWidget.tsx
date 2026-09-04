@@ -1,34 +1,20 @@
 /**
  * WeatherWidget — DrivePass+
  *
- * Open-Meteo — free, no API key, same "don't add paid infra we don't need" choice already
- * made for the map (Leaflet + OpenStreetMap). Fixed to Samarkand for now, matching the map's
- * own SAMARKAND constant -- per-user location isn't worth the geolocation prompt for a
- * single-city product yet.
+ * The header chip: current conditions, with the 7-day strip behind a tap. Data arrives as
+ * props from the dashboard (see hooks/useSamarkandWeather) so this and the rain advisory
+ * share a single Open-Meteo request instead of each firing their own.
  *
  * Tap the chip to reveal a 7-day strip -- stays a single compact chip by default, the week
  * is opt-in, not shown up front.
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import type { CurrentWeather, DayForecast } from '../hooks/useSamarkandWeather';
 import { Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, Sun, CloudSun, ChevronDown } from 'lucide-react';
 
-const SAMARKAND_LAT = 39.655;
-const SAMARKAND_LON = 66.96;
 const WEEKDAY_LABELS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-
-interface WeatherState {
-  tempC: number;
-  code: number;
-}
-
-interface DayForecast {
-  date: string;
-  maxC: number;
-  minC: number;
-  code: number;
-}
 
 // WMO weather codes -> icon + short Russian label. Buckets, not a 1:1 code map -- covers
 // everything Open-Meteo returns without needing all ~30 codes spelled out.
@@ -50,37 +36,15 @@ function dayLabel(dateStr: string, index: number): string {
   return WEEKDAY_LABELS[d.getDay()];
 }
 
-export function WeatherWidget({ className = '' }: { className?: string }) {
-  const [weather, setWeather] = useState<WeatherState | null>(null);
-  const [daily, setDaily] = useState<DayForecast[] | null>(null);
+interface WeatherWidgetProps {
+  weather: CurrentWeather | null;
+  daily: DayForecast[] | null;
+  className?: string;
+}
+
+export function WeatherWidget({ weather, daily, className = '' }: WeatherWidgetProps) {
   const [expanded, setExpanded] = useState(false);
   const reduce = useReducedMotion();
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${SAMARKAND_LAT}&longitude=${SAMARKAND_LON}` +
-        `&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min` +
-        `&timezone=Asia/Tashkent&forecast_days=7`,
-    )
-      .then(r => (r.ok ? r.json() : null))
-      .then(data => {
-        if (cancelled || !data?.current) return;
-        setWeather({ tempC: Math.round(data.current.temperature_2m), code: data.current.weather_code });
-        if (data.daily?.time) {
-          setDaily(
-            data.daily.time.map((date: string, i: number) => ({
-              date,
-              maxC: Math.round(data.daily.temperature_2m_max[i]),
-              minC: Math.round(data.daily.temperature_2m_min[i]),
-              code: data.daily.weather_code[i],
-            })),
-          );
-        }
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
 
   // No fake placeholder while loading or on failure -- the chip simply doesn't render
   // rather than show a fabricated temperature.

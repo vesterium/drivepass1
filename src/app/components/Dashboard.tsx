@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { SubscriptionModal } from './SubscriptionModal';
 import { WeatherWidget } from './WeatherWidget';
 import { WashAvailability } from './WashAvailability';
+import { WeatherAdvisory } from './WeatherAdvisory';
+import { useSamarkandWeather } from '../hooks/useSamarkandWeather';
 
 interface DashboardProps {
   user?: any;
@@ -26,6 +28,10 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, o
   const { subscription, hasActiveSubscription, refresh: refreshSubscription } = useSubscription();
 
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+
+  // Fetched once here and handed down: the header chip and the rain advisory read the same
+  // forecast, and two components fetching it separately would be two requests for one answer.
+  const { current: weather, daily, hourly } = useSamarkandWeather();
 
   const userName  = user?.firstName || 'Привет';
   const carNumber = subscription?.carPlate || '';
@@ -59,7 +65,7 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, o
         {/* Weather — the app's own logo/name is redundant here, user already knows
             which app they're in (opened via its icon or the bot's own menu button) */}
         <div className="flex items-center justify-end pt-4 mb-6">
-          <WeatherWidget />
+          <WeatherWidget weather={weather} daily={daily} />
         </div>
 
         {/* Greeting */}
@@ -284,6 +290,10 @@ export function Dashboard({ user, accessToken, onGoToLocations, onGoToHistory, o
       </motion.section>
 
       {/* ── SUBSCRIPTION MODAL ──────────────────────────────────────────── */}
+      {/* Warns before a wash gets spent on a day the rain will undo -- only when rain is
+          actually likely, only for someone holding a subscription, once a day. */}
+      <WeatherAdvisory hourly={hourly} daily={daily} enabled={hasActiveSubscription} />
+
       {showSubscriptionModal && accessToken && (
         <SubscriptionModal
           accessToken={accessToken}
