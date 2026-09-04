@@ -184,7 +184,7 @@ export const translations = {
       commissionRates: 'Personal: 25,000 sum · Business: 35,000 sum',
       paymentInfo: 'Payouts — monthly to card/account',
       clientScanner: 'Client QR Scanner',
-      scanInstructions: 'Ask the client to show QR from the app. System will verify subscription and 24h cooldown.',
+      scanInstructions: 'Ask the client to show the QR from their app. The system checks the subscription and the daily limit.',
       // Analytics tab
       totalWashes: 'Total Washes',
       clientsCount: 'Clients',
@@ -584,7 +584,7 @@ export const translations = {
       commissionRates: 'Personal: 25 000 сум · Business: 35 000 сум',
       paymentInfo: 'Выплаты — ежемесячно на карту/счёт',
       clientScanner: 'Сканер QR-кода клиента',
-      scanInstructions: 'Попросите клиента показать QR в приложении. Система проверит подписку и 24ч кулдаун.',
+      scanInstructions: 'Попросите клиента показать QR в приложении. Система проверит подписку и суточный лимит.',
       // Analytics tab
       totalWashes: 'Всего моек',
       clientsCount: 'Клиентов',
@@ -984,7 +984,7 @@ export const translations = {
       commissionRates: 'Personal: 25 000 so\'m · Business: 35 000 so\'m',
       paymentInfo: "To'lovlar — oylik karta/hisobga",
       clientScanner: 'Mijoz QR-kodi skaneri',
-      scanInstructions: "Mijozdan ilovadagi QR-ni ko'rsatishini so'rang. Tizim obuna va 24 soat kutish muddatini tekshiradi.",
+      scanInstructions: "Mijozdan ilovadagi QR-ni ko'rsatishini so'rang. Tizim obuna va kunlik limitni tekshiradi.",
       // Analytics tab
       totalWashes: 'Jami yuvishlar',
       clientsCount: 'Mijozlar',
