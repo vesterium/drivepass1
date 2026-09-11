@@ -10,12 +10,12 @@
  *    of washes already used, nothing more, nothing less)
  *  - cooldown/daily-limit/dispute-window numbers match app/core/config.py's real defaults
  *  - data-collected list matches the actual models (User, Car, Subscription, Visit)
- *  - contact is only @DrivePass_bot, matching how this business actually operates
+ *  - contacts are the ones that actually reach the owner: @DrivePass_bot for day-to-day and
+ *    info@drivepassplus.app for formal correspondence
  *
- * Any remaining [УКАЖИТЕ ...] placeholder marks a fact only the business owner can supply --
- * never fill one with an invented value. This document is a professional first draft, not a
- * substitute for review by a lawyer licensed in Uzbekistan before it's relied on for a real
- * paid service.
+ * Every requisite here is real and verified -- no placeholders remain. Still a professional
+ * draft rather than a substitute for review by a lawyer licensed in Uzbekistan before it is
+ * relied on for a real paid service.
  */
 
 export const LEGAL_ENTITY_NAME = 'Индивидуальный предприниматель Юлдашев Озоджон';
@@ -29,12 +29,10 @@ export const LEGAL_REGISTRATION_NUMBER = '7265067';
 export const LEGAL_ADDRESS = 'Самаркандская область, город Самарканд, Sat-Tepo';
 export const LEGAL_CONTACT = '@DrivePass_bot (Telegram)';
 
-// The e-commerce law wants both a postal and an electronic address in an offer. The service
-// genuinely runs on Telegram, so the bot is the working channel -- but set this the moment a
-// mailbox exists on the domain and it appears in both documents' requisites automatically.
-// Left empty rather than filled with an address that would bounce: an unreachable contact in
-// a legal document is worse than none.
-export const LEGAL_EMAIL = '';
+// The e-commerce law wants both a postal and an electronic address in an offer. The bot stays
+// the working channel; this is the formal electronic address, forwarded to the owner's mailbox
+// via Cloudflare Email Routing (MX verified live before it was put here).
+export const LEGAL_EMAIL = 'info@drivepassplus.app';
 
 export const LEGAL_LAST_UPDATED = '11.09.2026';
 
