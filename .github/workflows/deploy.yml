@@ -29,5 +29,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "$DEPLOY_KEY_B64" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H 62.238.98.200 >> ~/.ssh/known_hosts
-          rsync -avzr --delete -e "ssh -i ~/.ssh/deploy_key" dist/ root@62.238.98.200:/opt/drivepass-pwa/
+          # Pinned host key of the Eskiz server rather than ssh-keyscan: the previous server's
+          # IP was reassigned to a stranger after it lapsed, and keyscan would have trusted
+          # whatever answered on it.
+          echo "45.130.148.44 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIN8M+teVj3bgrUI3o/XUn1PC4IkepcGVmwvO9T1YRVj1" >> ~/.ssh/known_hosts
+          # The deploy key is locked server-side to `rrsync -wo /opt/drivepass-pwa`, so it can
+          # only write there, and the destination path is relative to that directory.
+          rsync -avzr --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes" dist/ root@45.130.148.44:/
